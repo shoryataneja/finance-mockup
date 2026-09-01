@@ -1,0 +1,108 @@
+.enq-page { min-height: 100vh; display: flex; flex-direction: column; }
+
+.enq-topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 24px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.enq-page-title { font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: -0.4px; }
+.enq-page-sub { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+.enq-count-badge {
+  background: var(--primary-light); color: var(--primary);
+  font-size: 13px; font-weight: 700;
+  padding: 6px 14px; border-radius: 20px;
+}
+
+.enq-body { padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Controls */
+.enq-controls { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.search-box {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 0 14px;
+  flex: 1; min-width: 240px; max-width: 380px;
+  transition: border-color 0.2s;
+}
+.search-box:focus-within { border-color: var(--primary); }
+.search-icon { font-size: 14px; }
+.search-box input {
+  flex: 1; border: none; outline: none;
+  padding: 11px 0; font-size: 14px; color: var(--text);
+  background: transparent;
+}
+.clear-btn { font-size: 12px; color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 2px 4px; }
+
+.filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-chip {
+  padding: 8px 16px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; color: var(--text-soft);
+  background: var(--surface); border: 1.5px solid var(--border);
+  transition: all 0.15s;
+}
+.filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+.filter-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* Table */
+.enq-table-wrap {
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.enq-table { width: 100%; border-collapse: collapse; }
+.enq-table th {
+  text-align: left; font-size: 11px; font-weight: 700;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px;
+  padding: 14px 16px; background: #fafbfd;
+  border-bottom: 1px solid var(--border);
+}
+.enq-table td {
+  padding: 14px 16px; border-bottom: 1px solid #f5f5f5;
+  font-size: 14px; vertical-align: middle;
+}
+.enq-table tr:last-child td { border-bottom: none; }
+.enq-table tbody tr:hover td { background: #fafbfd; }
+
+.row-num { font-size: 12px; color: #ccc; font-weight: 600; width: 32px; }
+.cust-cell { display: flex; align-items: center; gap: 10px; }
+.cust-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.cust-name { font-weight: 600; color: var(--text); }
+.car-text { font-size: 13px; color: var(--text-soft); }
+.bank-chip {
+  display: inline-block;
+  background: var(--primary-light); color: var(--primary);
+  font-size: 12px; font-weight: 700;
+  padding: 3px 10px; border-radius: 6px;
+}
+.roi-text { font-size: 13px; font-weight: 600; color: var(--primary-mid); }
+.date-text { font-size: 12px; color: #bbb; }
+.status-badge {
+  display: inline-flex; align-items: center;
+  font-size: 12px; font-weight: 700;
+  padding: 4px 10px; border-radius: 20px;
+}
+.status-green  { background: var(--green-bg);  color: var(--green); }
+.status-red    { background: var(--red-bg);    color: var(--red); }
+.status-amber  { background: var(--amber-bg);  color: var(--amber); }
+.status-indigo { background: #ede7f6;           color: #5c6bc0; }
+.empty-row { text-align: center; color: var(--text-muted); padding: 48px; font-size: 14px; }
+
+.cust-id { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.loan-text { font-size: 13px; font-weight: 700; color: var(--text); }
+.exec-cell { display: flex; align-items: center; gap: 8px; }
+.exec-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--primary-light); color: var(--primary);
+  font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.exec-name { font-size: 13px; color: var(--text-soft); }
+.clickable-row { cursor: pointer; transition: background 0.12s; }
+.clickable-row:hover td { background: #f5f8ff !important; }
