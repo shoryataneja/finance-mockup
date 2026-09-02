@@ -12,6 +12,7 @@ const STATUS_CLASS = {
 
 const BANKS = [...new Set(ENQUIRIES.map(e => e.bank))].sort();
 const STATUSES = ['Sanctioned', 'In-Progress', 'Pending', 'Rejected'];
+const BANK_STAGES = ['Sent to Bank', 'Under Bank Consideration', 'Verification / FI', 'Approved', 'Agreement Completed', 'Disbursement'];
 const PROFILES = ['Salaried', 'Business'];
 const RESIDENCES = ['Own', 'Rented'];
 const SORT_OPTIONS = [
@@ -31,7 +32,7 @@ function multiLabel(arr, placeholder) {
 }
 
 const INIT_FILTERS = {
-  query: '', statuses: [], executives: [], banks: [],
+  query: '', statuses: [], executives: [], banks: [], bankStages: [],
   profiles: [], residences: [],
   dateFrom: '', dateTo: '',
   loanMin: '', loanMax: '',
@@ -58,6 +59,7 @@ export default function EnquiriesPage() {
     if (filters.dateFrom || filters.dateTo) n++;
     if (filters.loanMin || filters.loanMax) n++;
     if (filters.cibilMin || filters.cibilMax) n++;
+    if (filters.bankStages.length) n++;
     return n;
   }, [filters]);
 
@@ -82,6 +84,7 @@ export default function EnquiriesPage() {
     if (filters.loanMax)  list = list.filter(e => e.loanAmount <= Number(filters.loanMax));
     if (filters.cibilMin) list = list.filter(e => e.cibil >= Number(filters.cibilMin));
     if (filters.cibilMax) list = list.filter(e => e.cibil <= Number(filters.cibilMax));
+    if (filters.bankStages.length) list = list.filter(e => e.status === 'In-Progress' && filters.bankStages.includes(e.bankStage));
     list.sort((a, b) => {
       switch (filters.sort) {
         case 'date_asc':   return a.dateRaw.localeCompare(b.dateRaw);
@@ -148,6 +151,15 @@ export default function EnquiriesPage() {
             onToggle={v => toggleArr('banks', v)}
             display={multiLabel(filters.banks, 'All Banks')}
             active={filters.banks.length > 0}
+          />
+
+          <DropSelect
+            label="Bank Status"
+            options={BANK_STAGES}
+            selected={filters.bankStages}
+            onToggle={v => toggleArr('bankStages', v)}
+            display={multiLabel(filters.bankStages, 'All Stages')}
+            active={filters.bankStages.length > 0}
           />
 
           <DropSelect

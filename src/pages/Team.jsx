@@ -2,24 +2,19 @@ import { useState } from 'react';
 import './Team.css';
 
 const TEAM = [
-  { id: 1, name: 'Priya Sharma',  role: 'Finance Executive', branch: 'Koramangala', joined: 'Jan 2023', total: 18, sanctioned: 12, rejected: 3, pending: 3 },
-  { id: 2, name: 'Rahul Mehta',   role: 'Finance Executive', branch: 'KP Road',     joined: 'Mar 2023', total: 15, sanctioned: 9,  rejected: 4, pending: 2 },
-  { id: 3, name: 'Sneha Patil',   role: 'Finance Executive', branch: 'KR Road',     joined: 'Jun 2022', total: 22, sanctioned: 16, rejected: 4, pending: 2 },
-  { id: 4, name: 'Amit Verma',    role: 'Finance Executive', branch: 'Bommanhalli', joined: 'Sep 2022', total: 11, sanctioned: 6,  rejected: 3, pending: 2 },
-  { id: 5, name: 'Deepika Nair',  role: 'Finance Executive', branch: 'Koramangala', joined: 'Feb 2024', total: 9,  sanctioned: 5,  rejected: 2, pending: 2 },
-  { id: 6, name: 'Karan Singh',   role: 'Finance Team Lead', branch: 'KP Road',     joined: 'Aug 2021', total: 27, sanctioned: 20, rejected: 5, pending: 2 },
-  { id: 7, name: 'Meera Iyer',    role: 'Finance Executive', branch: 'KR Road',     joined: 'Nov 2023', total: 8,  sanctioned: 4,  rejected: 2, pending: 2 },
-  { id: 8, name: 'Vikram Joshi',  role: 'Finance Team Lead', branch: 'Bommanhalli', joined: 'May 2021', total: 31, sanctioned: 23, rejected: 5, pending: 3 },
+  { id: 1, name: 'Priya Sharma',  role: 'Finance Executive', lead: 'Karan Singh',  branch: 'Koramangala', joined: 'Jan 2023', total: 18, sanctioned: 12, rejected: 3, pending: 3 },
+  { id: 2, name: 'Rahul Mehta',   role: 'Finance Executive', lead: 'Karan Singh',  branch: 'KP Road',     joined: 'Mar 2023', total: 15, sanctioned: 9,  rejected: 4, pending: 2 },
+  { id: 3, name: 'Sneha Patil',   role: 'Finance Executive', lead: 'Vikram Joshi', branch: 'KR Road',     joined: 'Jun 2022', total: 22, sanctioned: 16, rejected: 4, pending: 2 },
+  { id: 4, name: 'Amit Verma',    role: 'Finance Executive', lead: 'Vikram Joshi', branch: 'Bommanhalli', joined: 'Sep 2022', total: 11, sanctioned: 6,  rejected: 3, pending: 2 },
+  { id: 5, name: 'Deepika Nair',  role: 'Finance Executive', lead: 'Karan Singh',  branch: 'Koramangala', joined: 'Feb 2024', total: 9,  sanctioned: 5,  rejected: 2, pending: 2 },
+  { id: 6, name: 'Karan Singh',   role: 'Finance Team Lead', lead: 'Karan Singh',  branch: 'KP Road',     joined: 'Aug 2021', total: 27, sanctioned: 20, rejected: 5, pending: 2 },
+  { id: 7, name: 'Meera Iyer',    role: 'Finance Executive', lead: 'Vikram Joshi', branch: 'KR Road',     joined: 'Nov 2023', total: 8,  sanctioned: 4,  rejected: 2, pending: 2 },
+  { id: 8, name: 'Vikram Joshi',  role: 'Finance Team Lead', lead: 'Vikram Joshi', branch: 'Bommanhalli', joined: 'May 2021', total: 31, sanctioned: 23, rejected: 5, pending: 3 },
 ];
 
-const TOTAL_ENQ   = TEAM.reduce((s, m) => s + m.total, 0);
-const TOTAL_SANC  = TEAM.reduce((s, m) => s + m.sanctioned, 0);
-const TOTAL_REJ   = TEAM.reduce((s, m) => s + m.rejected, 0);
-const TOTAL_PEND  = TEAM.reduce((s, m) => s + m.pending, 0);
-const MAX_TOTAL   = Math.max(...TEAM.map(m => m.total));
+const LEADS = [...new Set(TEAM.filter(m => m.role === 'Finance Team Lead').map(m => m.name))];
 
 function initials(name) { return name.split(' ').map(w => w[0]).join('').slice(0, 2); }
-
 function pct(val, total) { return total ? Math.round((val / total) * 100) : 0; }
 
 const AVATAR_COLORS = [
@@ -29,8 +24,17 @@ const AVATAR_COLORS = [
 
 export default function TeamPage() {
   const [sort, setSort] = useState('total');
+  const [selectedLead, setSelectedLead] = useState('All');
 
-  const sorted = [...TEAM].sort((a, b) => b[sort] - a[sort]);
+  const visibleTeam = selectedLead === 'All' ? TEAM : TEAM.filter(m => m.lead === selectedLead);
+
+  const TOTAL_ENQ  = visibleTeam.reduce((s, m) => s + m.total, 0);
+  const TOTAL_SANC = visibleTeam.reduce((s, m) => s + m.sanctioned, 0);
+  const TOTAL_REJ  = visibleTeam.reduce((s, m) => s + m.rejected, 0);
+  const TOTAL_PEND = visibleTeam.reduce((s, m) => s + m.pending, 0);
+  const MAX_TOTAL  = visibleTeam.length ? Math.max(...visibleTeam.map(m => m.total)) : 1;
+
+  const sorted = [...visibleTeam].sort((a, b) => b[sort] - a[sort]);
 
   return (
     <div className="team-page">
@@ -38,7 +42,25 @@ export default function TeamPage() {
       <div className="team-topbar">
         <div>
           <div className="team-page-title">Team Breakdown</div>
-          <div className="team-page-sub">Performance analytics for Ayush Tyagi's team · {TEAM.length} members</div>
+          <div className="team-page-sub">
+            {selectedLead === 'All'
+              ? `Performance analytics for Ayush Tyagi's team · ${TEAM.length} members`
+              : `Showing ${selectedLead}'s team · ${visibleTeam.length} members`}
+          </div>
+        </div>
+        <div className="lead-filter">
+          <span className="lead-filter-label">Team Lead</span>
+          <div className="lead-seg">
+            {['All', ...LEADS].map(l => (
+              <button
+                key={l}
+                className={`lead-seg-btn${selectedLead === l ? ' active' : ''}`}
+                onClick={() => setSelectedLead(l)}
+              >
+                {l === 'All' ? 'All Teams' : l}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -90,7 +112,7 @@ export default function TeamPage() {
               </div>
             </div>
             <div className="bar-chart">
-              {TEAM.map((m, i) => (
+              {visibleTeam.map((m, i) => (
                 <div key={m.id} className="bar-row">
                   <div className="bar-name">{m.name.split(' ')[0]}</div>
                   <div className="bar-track">
