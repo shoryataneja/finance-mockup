@@ -3,7 +3,7 @@ import './Profile.css';
 
 const USER = {
   name: 'Ayush Tyagi',
-  designation: 'Team Lead',
+  designation: 'Admin',
   employeeId: 'NF-2024-031',
   email: 'ayush.tyagi@nandifinance.in',
   phone: '+91 98765 43210',

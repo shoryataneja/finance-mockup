@@ -2,14 +2,14 @@ import { useState } from 'react';
 import './Team.css';
 
 const TEAM = [
-  { id: 1, name: 'Priya Sharma',   role: 'Finance Executive', joined: 'Jan 2023', total: 18, sanctioned: 12, rejected: 3, pending: 3 },
-  { id: 2, name: 'Rahul Mehta',    role: 'Finance Executive', joined: 'Mar 2023', total: 15, sanctioned: 9,  rejected: 4, pending: 2 },
-  { id: 3, name: 'Sneha Patil',    role: 'Finance Executive', joined: 'Jun 2022', total: 22, sanctioned: 16, rejected: 4, pending: 2 },
-  { id: 4, name: 'Amit Verma',     role: 'Finance Executive', joined: 'Sep 2022', total: 11, sanctioned: 6,  rejected: 3, pending: 2 },
-  { id: 5, name: 'Deepika Nair',   role: 'Finance Executive', joined: 'Feb 2024', total: 9,  sanctioned: 5,  rejected: 2, pending: 2 },
-  { id: 6, name: 'Karan Singh',    role: 'Senior Executive',  joined: 'Aug 2021', total: 27, sanctioned: 20, rejected: 5, pending: 2 },
-  { id: 7, name: 'Meera Iyer',     role: 'Finance Executive', joined: 'Nov 2023', total: 8,  sanctioned: 4,  rejected: 2, pending: 2 },
-  { id: 8, name: 'Vikram Joshi',   role: 'Senior Executive',  joined: 'May 2021', total: 31, sanctioned: 23, rejected: 5, pending: 3 },
+  { id: 1, name: 'Priya Sharma',  role: 'Finance Executive', branch: 'Koramangala', joined: 'Jan 2023', total: 18, sanctioned: 12, rejected: 3, pending: 3 },
+  { id: 2, name: 'Rahul Mehta',   role: 'Finance Executive', branch: 'KP Road',     joined: 'Mar 2023', total: 15, sanctioned: 9,  rejected: 4, pending: 2 },
+  { id: 3, name: 'Sneha Patil',   role: 'Finance Executive', branch: 'KR Road',     joined: 'Jun 2022', total: 22, sanctioned: 16, rejected: 4, pending: 2 },
+  { id: 4, name: 'Amit Verma',    role: 'Finance Executive', branch: 'Bommanhalli', joined: 'Sep 2022', total: 11, sanctioned: 6,  rejected: 3, pending: 2 },
+  { id: 5, name: 'Deepika Nair',  role: 'Finance Executive', branch: 'Koramangala', joined: 'Feb 2024', total: 9,  sanctioned: 5,  rejected: 2, pending: 2 },
+  { id: 6, name: 'Karan Singh',   role: 'Finance Team Lead', branch: 'KP Road',     joined: 'Aug 2021', total: 27, sanctioned: 20, rejected: 5, pending: 2 },
+  { id: 7, name: 'Meera Iyer',    role: 'Finance Executive', branch: 'KR Road',     joined: 'Nov 2023', total: 8,  sanctioned: 4,  rejected: 2, pending: 2 },
+  { id: 8, name: 'Vikram Joshi',  role: 'Finance Team Lead', branch: 'Bommanhalli', joined: 'May 2021', total: 31, sanctioned: 23, rejected: 5, pending: 3 },
 ];
 
 const TOTAL_ENQ   = TEAM.reduce((s, m) => s + m.total, 0);

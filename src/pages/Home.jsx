@@ -4,7 +4,7 @@ import { ENQUIRIES, EXECUTIVES } from '../data/enquiries';
 import './Home.css';
 
 const NAME = 'Ayush Tyagi';
-const ROLE = 'Team Lead';
+const ROLE = 'Admin';
 
 const STATUS_CLASS = {
   Sanctioned: 'status-green',

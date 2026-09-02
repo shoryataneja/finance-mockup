@@ -2,13 +2,12 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
 const NAV = [
-  { to: '/home',        label: 'Home' },
-  { to: '/enquiries',   label: 'Recent Enquiries' },
-  { to: '/banks',       label: 'Bank Management' },
-  { to: '/score-bands', label: 'Score Bands' },
-  { to: '/users',       label: 'User Management' },
-  { to: '/team',        label: 'Team Breakdown' },
-  { to: '/profile',     label: 'Profile' },
+  { to: '/home',       label: 'Home' },
+  { to: '/enquiries',  label: 'Recent Enquiries' },
+  { to: '/team',       label: 'Team Breakdown' },
+  { to: '/users',      label: 'User Management' },
+  { to: '/branches',   label: 'Branch Management' },
+  { to: '/profile',    label: 'Profile' },
 ];
 
 export default function Sidebar() {
@@ -36,7 +35,7 @@ export default function Sidebar() {
           <div className="sidebar-avatar">AT</div>
           <div className="sidebar-user-info">
             <div className="sidebar-user-name">Ayush Tyagi</div>
-            <div className="sidebar-user-role">Team Lead</div>
+            <div className="sidebar-user-role">Admin</div>
           </div>
         </div>
         <button className="logout-btn" onClick={() => navigate('/')}>
