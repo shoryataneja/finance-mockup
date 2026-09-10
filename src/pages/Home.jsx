@@ -7,10 +7,10 @@ const NAME = 'Ayush Tyagi';
 const ROLE = 'Admin';
 
 const STATUS_CLASS = {
-  Sanctioned: 'status-green',
-  Rejected: 'status-red',
-  Pending: 'status-amber',
   'In-Progress': 'status-indigo',
+  Sanctioned: 'status-green',
+  Disbursed: 'status-green',
+  Rejected: 'status-red',
 };
 
 const PROFILES = ['Salaried', 'Business', 'Self Employee', 'Company', 'Agriculture'];
@@ -53,11 +53,11 @@ export default function HomePage() {
   const RECENT = ENQUIRIES.slice(0, 5);
 
   const KPI = [
-    { label: 'Total Enquiries', value: ENQUIRIES.length,                                         color: 'blue',   icon: '📋' },
-    { label: 'Sanctioned',      value: ENQUIRIES.filter(e => e.status === 'Sanctioned').length,  color: 'green',  icon: '✅' },
-    { label: 'In Progress',     value: ENQUIRIES.filter(e => e.status === 'In-Progress').length, color: 'indigo', icon: '🔄' },
-    { label: 'Pending',         value: ENQUIRIES.filter(e => e.status === 'Pending').length,     color: 'amber',  icon: '⏳' },
-    { label: 'Rejected',        value: ENQUIRIES.filter(e => e.status === 'Rejected').length,    color: 'red',    icon: '❌' },
+    { label: 'Total Logins',  value: ENQUIRIES.length,                                          color: 'blue',   icon: '📋' },
+    { label: 'In Progress',   value: ENQUIRIES.filter(e => e.status === 'In-Progress').length,  color: 'indigo', icon: '🔄' },
+    { label: 'Sanctioned',    value: ENQUIRIES.filter(e => e.status === 'Sanctioned').length,   color: 'green',  icon: '✅' },
+    { label: 'Disbursed',     value: ENQUIRIES.filter(e => e.status === 'Disbursed').length,    color: 'amber',  icon: '💰' },
+    { label: 'Rejected',      value: ENQUIRIES.filter(e => e.status === 'Rejected').length,     color: 'red',    icon: '❌' },
   ];
 
   // ── Drawer state ──

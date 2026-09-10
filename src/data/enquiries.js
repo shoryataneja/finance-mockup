@@ -12,7 +12,7 @@ export const ENQUIRIES = [
     car: 'Toyota Hyryder', variant: 'S Hybrid', vehiclePrice: 2426497,
     dealer: 'Nandi Toyota, Koramangala', downPayment: 800000,
     loanAmount: 1626497, tenure: 60, bank: 'SBI', roi: '8.60%',
-    emi: 33420, status: 'Sanctioned', executive: 'Priya Sharma',
+    emi: 33420, status: 'Disbursed', executive: 'Priya Sharma',
     date: '31 Aug 2025', dateRaw: '2025-08-31',
     leadStage: 7,
     documents: [
@@ -66,7 +66,7 @@ export const ENQUIRIES = [
     car: 'Maruti Brezza', variant: 'ZXI+', vehiclePrice: 1345000,
     dealer: 'Mandovi Motors, Jayanagar', downPayment: 350000,
     loanAmount: 995000, tenure: 48, bank: 'BOB', roi: '8.60%',
-    emi: 24650, status: 'Sanctioned', executive: 'Sneha Patil',
+    emi: 24650, status: 'Disbursed', executive: 'Sneha Patil',
     date: '30 Aug 2025', dateRaw: '2025-08-30',
     leadStage: 8,
     documents: [
@@ -123,7 +123,7 @@ export const ENQUIRIES = [
     car: 'Mahindra XUV700', variant: 'AX7 L Diesel', vehiclePrice: 2650000,
     dealer: 'Mahindra First Choice, Hebbal', downPayment: 700000,
     loanAmount: 1950000, tenure: 60, bank: 'Kotak', roi: '8.80%',
-    emi: 40250, status: 'Sanctioned', executive: 'Deepika Nair',
+    emi: 40250, status: 'Disbursed', executive: 'Deepika Nair',
     date: '25 Aug 2025', dateRaw: '2025-08-25',
     leadStage: 7,
     documents: [
@@ -179,7 +179,7 @@ export const ENQUIRIES = [
     car: 'Kia Seltos', variant: 'HTX Plus Turbo', vehiclePrice: 1780000,
     dealer: 'Kia Motors, Bannerghatta Rd', downPayment: 480000,
     loanAmount: 1300000, tenure: 48, bank: 'Yes Bank', roi: '8.75%',
-    emi: 32400, status: 'Sanctioned', executive: 'Rahul Mehta',
+    emi: 32400, status: 'Disbursed', executive: 'Rahul Mehta',
     date: '24 Aug 2025', dateRaw: '2025-08-24',
     leadStage: 7,
     documents: [

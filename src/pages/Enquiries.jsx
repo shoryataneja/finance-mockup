@@ -4,14 +4,14 @@ import { ENQUIRIES, EXECUTIVES } from '../data/enquiries';
 import './Enquiries.css';
 
 const STATUS_CLASS = {
-  Sanctioned: 'status-green',
-  Rejected: 'status-red',
-  Pending: 'status-amber',
   'In-Progress': 'status-indigo',
+  Sanctioned: 'status-green',
+  Disbursed: 'status-green',
+  Rejected: 'status-red',
 };
 
 const BANKS = [...new Set(ENQUIRIES.map(e => e.bank))].sort();
-const STATUSES = ['Sanctioned', 'In-Progress', 'Pending', 'Rejected'];
+const STATUSES = ['In-Progress', 'Sanctioned', 'Disbursed', 'Rejected'];
 const BANK_STAGES = ['Sent to Bank', 'Under Bank Consideration', 'Verification / FI', 'Approved', 'Agreement Completed', 'Disbursement'];
 const PROFILES = ['Salaried', 'Business'];
 const RESIDENCES = ['Own', 'Rented'];
