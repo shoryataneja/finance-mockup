@@ -109,7 +109,7 @@ export default function BanksPage() {
                 {band.banks.length === 0 && (
                   <div className="bank-empty">No banks configured for this band</div>
                 )}
-                {band.banks.map((bank, i) => (
+                {band.banks.map((bank) => (
                   <div key={bank.id} className="bank-item">
                     <div className={`bank-initials bank-initials-${band.color}`}>{initials(bank.name)}</div>
                     <div className="bank-item-info">

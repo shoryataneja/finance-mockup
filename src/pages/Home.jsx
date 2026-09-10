@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ENQUIRIES, EXECUTIVES } from '../data/enquiries';
+import { ENQUIRIES } from '../data/enquiries';
 import './Home.css';
 
 const NAME = 'Ayush Tyagi';
@@ -13,7 +13,6 @@ const STATUS_CLASS = {
   'In-Progress': 'status-indigo',
 };
 
-const BANKS_LIST = ['SBI', 'HDFC', 'ICICI', 'Kotak', 'Axis', 'BOB', 'PNB', 'Yes Bank', 'Federal', 'Union Bank'];
 const PROFILES = ['Salaried', 'Business', 'Self Employee', 'Company', 'Agriculture'];
 const GENDERS = ['Male', 'Female', 'Other'];
 const MARITAL = ['Single', 'Married', 'Divorced', 'Widowed'];
@@ -42,7 +41,7 @@ const S1_INIT = { name: '', dob: '', age: '', gender: '', marital: '', address: 
 const S2_INIT = {
   profile: '', yearsInJob: '', officeStatus: '', incomeProfile: '', proofOfIncome: '',
   ifAvailable: [], accountBank: '', existingVehicle: '', vehicleModel: '', trackStatus: '',
-  incomePerMonth: '', existingEmiTotal: '', foir: '', cibilScore: '',
+  incomePerMonth: '', existingEmiTotal: '', cibilScore: '',
   additionalIncome: '', additionalIncomeSource: [], additionalIncomeAmount: '',
   consentGiven: false, consentDateTime: '',
 };
@@ -73,14 +72,12 @@ export default function HomePage() {
   const openDrawer = () => { setStep(1); setS1(S1_INIT); setS2(S2_INIT); setS3(S3_INIT); setSubmitted(false); setDrawerOpen(true); };
   const closeDrawer = () => setDrawerOpen(false);
 
-  // FOIR auto-calc
-  useEffect(() => {
+  // FOIR derived inline — no useEffect needed
+  const foirValue = (() => {
     const income = parseFloat(s2.incomePerMonth);
     const emi = parseFloat(s2.existingEmiTotal);
-    if (income > 0 && emi >= 0) {
-      setS2(f => ({ ...f, foir: ((emi / income) * 100).toFixed(1) + '%' }));
-    }
-  }, [s2.incomePerMonth, s2.existingEmiTotal]);
+    return income > 0 && emi >= 0 ? ((emi / income) * 100).toFixed(1) + '%' : '';
+  })();
 
   const set1 = (k, v) => setS1(f => ({ ...f, [k]: v }));
   const set2 = (k, v) => setS2(f => ({ ...f, [k]: v }));
@@ -372,7 +369,7 @@ export default function HomePage() {
                     </FormField>
 
                     <FormField label="FOIR (Auto-calculated)">
-                      <div className="fi fi-readonly">{s2.foir || '—'}</div>
+                      <div className="fi fi-readonly">{foirValue || '—'}</div>
                     </FormField>
 
                     <FormField label="CIBIL Score">

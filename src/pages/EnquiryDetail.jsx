@@ -35,7 +35,6 @@ const STATUS_CLASS = {
 };
 
 function fmt(n) { return '₹' + n.toLocaleString('en-IN'); }
-function initials(name) { return name.split(' ').map(w => w[0]).join('').slice(0, 2); }
 
 function InfoRow({ label, value }) {
   return (
@@ -74,7 +73,6 @@ export default function EnquiryDetail() {
       by: 'Admin',
       remarks: remark,
     };
-    const newStatus = nextStage >= 7 ? 'Sanctioned' : nextStage === 5 ? 'Rejected' : 'In-Progress';
     setEnq(e => ({
       ...e,
       leadStage: nextStage,
