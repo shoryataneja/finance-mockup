@@ -205,10 +205,13 @@ export default function EnquiryDetail() {
             {/* Vehicle Details */}
             <div className="detail-card">
               <div className="card-title">🚗 Vehicle Details</div>
-              <InfoRow label="Car" value={enq.car} />
+              <InfoRow label="Make" value={enq.make} />
+              <InfoRow label="Model" value={enq.model} />
               <InfoRow label="Variant" value={enq.variant} />
               <InfoRow label="Vehicle Price" value={fmt(enq.vehiclePrice)} />
-              <InfoRow label="Dealer / Branch" value={enq.dealer} />
+              <InfoRow label="Dealer" value={enq.dealer} />
+              <InfoRow label="Branch" value={enq.branch} />
+              <InfoRow label="Sales Officer" value={enq.salesOfficer} />
             </div>
 
             {/* Finance Details */}
