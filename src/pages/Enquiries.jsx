@@ -70,7 +70,9 @@ export default function EnquiriesPage() {
       list = list.filter(e =>
         e.name.toLowerCase().includes(q) || e.car.toLowerCase().includes(q) ||
         e.bank.toLowerCase().includes(q) || e.enquiryId.toLowerCase().includes(q) ||
-        e.executive.toLowerCase().includes(q) || e.employer?.toLowerCase().includes(q)
+        e.executive.toLowerCase().includes(q) || e.employer?.toLowerCase().includes(q) ||
+        e.make?.toLowerCase().includes(q) || e.model?.toLowerCase().includes(q) ||
+        e.variant?.toLowerCase().includes(q) || e.salesOfficer?.toLowerCase().includes(q)
       );
     }
     if (filters.statuses.length)   list = list.filter(e => filters.statuses.includes(e.status));
@@ -117,7 +119,7 @@ export default function EnquiriesPage() {
             <span className="search-icon">🔍</span>
             <input
               type="text"
-              placeholder="Search name, vehicle, bank, ID..."
+              placeholder="Search name, vehicle, make, model, variant, sales officer, bank, ID..."
               value={filters.query}
               onChange={e => set('query', e.target.value)}
             />
