@@ -214,6 +214,36 @@ export default function EnquiryDetail() {
               <InfoRow label="Sales Officer" value={enq.salesOfficer} />
             </div>
 
+            {/* Co-Applicant */}
+            {enq.coApplicant && (
+              <div className="detail-card co-applicant-card">
+                <div className="card-title">👥 Co-Applicant Details
+                  <span className="co-relation-badge">{enq.coApplicant.relation}</span>
+                </div>
+                <div className="co-sub-heading">Personal</div>
+                <InfoRow label="Full Name" value={enq.coApplicant.name} />
+                <InfoRow label="Mobile" value={enq.coApplicant.mobile} />
+                <InfoRow label="Date of Birth" value={enq.coApplicant.dob} />
+                <InfoRow label="Age" value={`${enq.coApplicant.age} years`} />
+                <InfoRow label="Gender" value={enq.coApplicant.gender} />
+                <InfoRow label="Marital Status" value={enq.coApplicant.marital} />
+                <InfoRow label="Address" value={enq.coApplicant.address} />
+                <InfoRow label="Residence" value={enq.coApplicant.residence} />
+                <div className="co-sub-heading" style={{ marginTop: 12 }}>Employment & Income</div>
+                <InfoRow label="Profile" value={enq.coApplicant.profile} />
+                <InfoRow label="Employer" value={enq.coApplicant.employer} />
+                <InfoRow label="Years in Job" value={enq.coApplicant.yearsInJob} />
+                <InfoRow label="Monthly Income" value={fmt(enq.coApplicant.income)} />
+                <InfoRow label="Existing EMIs" value={fmt(enq.coApplicant.existingEmi)} />
+                <InfoRow label="FOIR" value={enq.coApplicant.foir} />
+                <InfoRow label="CIBIL Score" value={
+                  <span className={`cibil-badge ${enq.coApplicant.cibil >= 750 ? 'cibil-good' : enq.coApplicant.cibil >= 700 ? 'cibil-ok' : 'cibil-low'}`}>
+                    {enq.coApplicant.cibil}
+                  </span>
+                } />
+              </div>
+            )}
+
             {/* Finance Details */}
             <div className="detail-card finance-card">
               <div className="card-title">🏦 Finance Details</div>

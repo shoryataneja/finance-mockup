@@ -18,10 +18,11 @@ const GENDERS = ['Male', 'Female', 'Other'];
 const MARITAL = ['Single', 'Married', 'Divorced', 'Widowed'];
 const OFFICE_STATUS = ['Company Owned', 'Self Owned'];
 const INCOME_PROFILE = ['Income Proof', 'No Income Proof'];
-const PROOF_OPTIONS = ['ITR', 'Form 16', 'Rental Agreement', 'GST Certificate', 'ETC'];
+const PROOF_OPTIONS = ['ITR', 'Form 16', 'Rental Agreement', 'ETC'];
 const TRACK_STATUS = ['Good', 'Bad'];
 const ADDITIONAL_INCOME_SOURCES = ['Income from House Property', 'Agriculture', 'Co-Applicant Income'];
 const TENURE_OPTIONS = [12, 24, 36, 48, 60, 72, 84];
+const CO_RELATIONS = ['Spouse', 'Father', 'Mother', 'Son', 'Daughter', 'Brother', 'Sister', 'Father-in-Law', 'Mother-in-Law'];
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -43,6 +44,11 @@ const S2_INIT = {
   ifAvailable: [], accountBank: '', existingVehicle: '', vehicleModel: '', trackStatus: '',
   incomePerMonth: '', existingEmiTotal: '', cibilScore: '',
   additionalIncome: '', additionalIncomeSource: [], additionalIncomeAmount: '',
+  coApplicant: {
+    relation: '', name: '', dob: '', age: '', gender: '', marital: '',
+    address: '', residence: '', profile: '', employer: '', yearsInJob: '',
+    incomePerMonth: '', existingEmi: '', cibil: '',
+  },
   consentGiven: false, consentDateTime: '',
 };
 // ── Step 3 default state ──
@@ -83,13 +89,23 @@ export default function HomePage() {
   const set2 = (k, v) => setS2(f => ({ ...f, [k]: v }));
   const set3 = (k, v) => setS3(f => ({ ...f, [k]: v }));
   const toggle2 = (k, v) => setS2(f => ({ ...f, [k]: f[k].includes(v) ? f[k].filter(x => x !== v) : [...f[k], v] }));
+  const setCA = (k, v) => setS2(f => ({ ...f, coApplicant: { ...f.coApplicant, [k]: v } }));
+
+  const coValid = !s2.additionalIncomeSource.includes('Co-Applicant Income') || (
+    s2.coApplicant.relation && s2.coApplicant.name && s2.coApplicant.dob &&
+    s2.coApplicant.gender && s2.coApplicant.marital && s2.coApplicant.address &&
+    s2.coApplicant.residence && s2.coApplicant.profile && s2.coApplicant.employer &&
+    s2.coApplicant.yearsInJob && s2.coApplicant.incomePerMonth &&
+    s2.coApplicant.existingEmi && s2.coApplicant.cibil
+  );
 
   const s1Valid = s1.name && s1.dob && s1.age && s1.gender && s1.marital && s1.address && s1.residence && s1.yearsAtAddress && s1.yearsAtCity && s1.salesOfficer && s1.branch;
   const s2Valid = s2.profile && s2.yearsInJob && s2.officeStatus && s2.incomeProfile && s2.proofOfIncome &&
     s2.accountBank && s2.existingVehicle && s2.vehicleModel && s2.trackStatus &&
     s2.incomePerMonth && s2.existingEmiTotal && s2.cibilScore && s2.additionalIncome && s2.consentGiven &&
     (s2.proofOfIncome === 'Not Available' || s2.ifAvailable.length > 0) &&
-    (s2.additionalIncome === 'No' || (s2.additionalIncomeSource.length > 0 && s2.additionalIncomeAmount));
+    (s2.additionalIncome === 'No' || (s2.additionalIncomeSource.length > 0 && s2.additionalIncomeAmount)) &&
+    coValid;
   const price = parseFloat(s3.vehiclePrice) || 0;
   const dp = parseFloat(s3.downPayment) || 0;
   const loanAmount = Math.max(0, price - dp);
@@ -416,6 +432,93 @@ export default function HomePage() {
                         <FormField label="Additional Income Amount (₹)">
                           <input className="fi" placeholder="e.g. 15000" type="number" value={s2.additionalIncomeAmount} onChange={e => set2('additionalIncomeAmount', e.target.value)} />
                         </FormField>
+
+                        {s2.additionalIncomeSource.includes('Co-Applicant Income') && (
+                          <div className="fg-full">
+                            <div className="co-applicant-section">
+                              <div className="co-section-header">
+                                <span className="co-section-icon">👥</span>
+                                <div>
+                                  <div className="co-section-title">Co-Applicant Details</div>
+                                  <div className="co-section-sub">Fill all details of the co-applicant</div>
+                                </div>
+                              </div>
+
+                              <div className="co-sub-label">RELATIONSHIP WITH APPLICANT</div>
+                              <div className="chip-row">
+                                {CO_RELATIONS.map(r => <Chip key={r} label={r} active={s2.coApplicant.relation === r} onClick={() => setCA('relation', r)} />)}
+                              </div>
+
+                              <div className="co-sub-label" style={{ marginTop: 18 }}>PERSONAL DETAILS</div>
+                              <div className="co-form-grid">
+                                <FormField label="Full Name">
+                                  <input className="fi" placeholder="Co-applicant full name" value={s2.coApplicant.name} onChange={e => setCA('name', e.target.value)} />
+                                </FormField>
+                                <FormField label="Date of Birth">
+                                  <input className="fi" type="date" value={s2.coApplicant.dob} onChange={e => {
+                                    const dob = e.target.value;
+                                    let age = '';
+                                    if (dob) {
+                                      const today = new Date(), b = new Date(dob);
+                                      age = today.getFullYear() - b.getFullYear();
+                                      const m = today.getMonth() - b.getMonth();
+                                      if (m < 0 || (m === 0 && today.getDate() < b.getDate())) age--;
+                                      age = String(age);
+                                    }
+                                    setCA('dob', dob); setCA('age', age);
+                                  }} />
+                                </FormField>
+                                <FormField label="Age">
+                                  <div className="fi fi-readonly">{s2.coApplicant.age ? `${s2.coApplicant.age} years` : '—'}</div>
+                                </FormField>
+                                <FormField label="Gender">
+                                  <div className="chip-row">
+                                    {GENDERS.map(g => <Chip key={g} label={g} active={s2.coApplicant.gender === g} onClick={() => setCA('gender', g)} />)}
+                                  </div>
+                                </FormField>
+                                <FormField label="Marital Status">
+                                  <div className="chip-row">
+                                    {MARITAL.map(m => <Chip key={m} label={m} active={s2.coApplicant.marital === m} onClick={() => setCA('marital', m)} />)}
+                                  </div>
+                                </FormField>
+                                <div className="co-full">
+                                  <FormField label="Address">
+                                    <textarea className="fi fi-ta" placeholder="Enter full address" value={s2.coApplicant.address} onChange={e => setCA('address', e.target.value)} />
+                                  </FormField>
+                                </div>
+                                <FormField label="Residence Status">
+                                  <div className="chip-row">
+                                    {['Own', 'Rented'].map(r => <Chip key={r} label={r} active={s2.coApplicant.residence === r} onClick={() => setCA('residence', r)} />)}
+                                  </div>
+                                </FormField>
+                              </div>
+
+                              <div className="co-sub-label" style={{ marginTop: 18 }}>EMPLOYMENT & INCOME</div>
+                              <div className="co-form-grid">
+                                <FormField label="Employment Profile">
+                                  <div className="chip-row">
+                                    {PROFILES.map(p => <Chip key={p} label={p} active={s2.coApplicant.profile === p} onClick={() => setCA('profile', p)} />)}
+                                  </div>
+                                </FormField>
+                                <FormField label="Employer / Business Name">
+                                  <input className="fi" placeholder="e.g. Infosys Ltd" value={s2.coApplicant.employer} onChange={e => setCA('employer', e.target.value)} />
+                                </FormField>
+                                <FormField label="Years in Job / Business">
+                                  <input className="fi" placeholder="e.g. 5" type="number" value={s2.coApplicant.yearsInJob} onChange={e => setCA('yearsInJob', e.target.value)} />
+                                </FormField>
+                                <FormField label="Monthly Income (₹)">
+                                  <input className="fi" placeholder="e.g. 55000" type="number" value={s2.coApplicant.incomePerMonth} onChange={e => setCA('incomePerMonth', e.target.value)} />
+                                </FormField>
+                                <FormField label="Existing EMIs Total (₹)">
+                                  <input className="fi" placeholder="e.g. 8000" type="number" value={s2.coApplicant.existingEmi} onChange={e => setCA('existingEmi', e.target.value)} />
+                                </FormField>
+                                <FormField label="CIBIL Score">
+                                  <input className="fi" placeholder="e.g. 740" type="number" maxLength={3} value={s2.coApplicant.cibil} onChange={e => setCA('cibil', e.target.value)} />
+                                </FormField>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </>
                     )}
 

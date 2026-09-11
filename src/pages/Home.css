@@ -366,3 +366,54 @@
 .ss-row { display: flex; justify-content: space-between; font-size: 14px; }
 .ss-row span { color: var(--text-muted); }
 .ss-row strong { color: var(--text); }
+
+/* ── Co-Applicant Section (Drawer Step 2) ── */
+.co-applicant-section {
+  background: #f7f9fc;
+  border: 1.5px solid #c8d8ee;
+  border-radius: 14px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.co-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #e8eef7;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.co-section-icon { font-size: 20px; }
+
+.co-section-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.co-section-sub {
+  font-size: 12px;
+  color: #6b8ab8;
+  margin-top: 2px;
+}
+
+.co-sub-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 0.8px;
+  padding-left: 10px;
+  border-left: 3px solid var(--primary);
+}
+
+.co-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+}
+
+.co-full { grid-column: 1 / -1; }

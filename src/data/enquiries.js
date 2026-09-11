@@ -15,6 +15,14 @@ export const ENQUIRIES = [
     emi: 33420, status: 'Disbursed', executive: 'Priya Sharma',
     date: '31 Aug 2025', dateRaw: '2025-08-31',
     leadStage: 7,
+    coApplicant: {
+      relation: 'Spouse',
+      name: 'Meghna Kapoor', mobile: '+91 98201 99001',
+      dob: '18 Jun 1992', age: 33, gender: 'Female', marital: 'Married',
+      address: '14, Indiranagar, Bangalore - 560038', residence: 'Own',
+      profile: 'Salaried', employer: 'Accenture India', yearsInJob: '5',
+      income: 62000, existingEmi: 5000, foir: '8.1%', cibil: 761,
+    },
     documents: [
       { id: 1, category: 'KYC', name: 'Aadhaar Card.pdf', size: '1.2 MB', uploadedBy: 'Priya Sharma', uploadedAt: '31 Aug, 10:45 AM' },
       { id: 2, category: 'KYC', name: 'PAN Card.pdf', size: '0.8 MB', uploadedBy: 'Priya Sharma', uploadedAt: '31 Aug, 10:46 AM' },
