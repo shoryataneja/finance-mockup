@@ -36,7 +36,7 @@ function fmtNum(v) { return v ? '₹' + Number(v).toLocaleString('en-IN') : '₹
 const STEP_LABELS = ['Personal Info', 'Employment & Finance', 'Vehicle & Loan'];
 
 // ── Step 1 default state ──
-const S1_INIT = { name: '', dob: '', age: '', gender: '', marital: '', address: '', residence: '', yearsAtAddress: '', yearsAtCity: '' };
+const S1_INIT = { name: '', dob: '', age: '', gender: '', marital: '', address: '', residence: '', yearsAtAddress: '', yearsAtCity: '', salesOfficer: '' };
 // ── Step 2 default state ──
 const S2_INIT = {
   profile: '', yearsInJob: '', officeStatus: '', incomeProfile: '', proofOfIncome: '',
@@ -46,7 +46,7 @@ const S2_INIT = {
   consentGiven: false, consentDateTime: '',
 };
 // ── Step 3 default state ──
-const S3_INIT = { vehicleModel: '', vehiclePrice: '', downPayment: '', tenure: 60 };
+const S3_INIT = { make: '', model: '', variant: '', vehiclePrice: '', downPayment: '', tenure: 60 };
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -84,7 +84,7 @@ export default function HomePage() {
   const set3 = (k, v) => setS3(f => ({ ...f, [k]: v }));
   const toggle2 = (k, v) => setS2(f => ({ ...f, [k]: f[k].includes(v) ? f[k].filter(x => x !== v) : [...f[k], v] }));
 
-  const s1Valid = s1.name && s1.dob && s1.age && s1.gender && s1.marital && s1.address && s1.residence && s1.yearsAtAddress && s1.yearsAtCity;
+  const s1Valid = s1.name && s1.dob && s1.age && s1.gender && s1.marital && s1.address && s1.residence && s1.yearsAtAddress && s1.yearsAtCity && s1.salesOfficer;
   const s2Valid = s2.profile && s2.yearsInJob && s2.officeStatus && s2.incomeProfile && s2.proofOfIncome &&
     s2.accountBank && s2.existingVehicle && s2.vehicleModel && s2.trackStatus &&
     s2.incomePerMonth && s2.existingEmiTotal && s2.cibilScore && s2.additionalIncome && s2.consentGiven &&
@@ -93,7 +93,7 @@ export default function HomePage() {
   const price = parseFloat(s3.vehiclePrice) || 0;
   const dp = parseFloat(s3.downPayment) || 0;
   const loanAmount = Math.max(0, price - dp);
-  const s3Valid = s3.vehicleModel.trim() && price > 0 && dp > 0 && loanAmount > 0;
+  const s3Valid = s3.make.trim() && s3.model.trim() && s3.variant.trim() && price > 0 && dp > 0 && loanAmount > 0;
 
   const handleSubmit = () => setSubmitted(true);
 
@@ -237,7 +237,7 @@ export default function HomePage() {
                 <div className="success-sub">Your enquiry has been created and assigned to the team.</div>
                 <div className="success-summary">
                   <div className="ss-row"><span>Customer</span><strong>{s1.name}</strong></div>
-                  <div className="ss-row"><span>Vehicle</span><strong>{s3.vehicleModel}</strong></div>
+                  <div className="ss-row"><span>Vehicle</span><strong>{s3.make} {s3.model} {s3.variant}</strong></div>
                   <div className="ss-row"><span>Loan Amount</span><strong>{fmtNum(loanAmount)}</strong></div>
                   <div className="ss-row"><span>Tenure</span><strong>{s3.tenure} months</strong></div>
                   <div className="ss-row"><span>CIBIL Score</span><strong>{s2.cibilScore}</strong></div>
@@ -298,6 +298,12 @@ export default function HomePage() {
                     <FormField label="Years at Current City">
                       <input className="fi" placeholder="e.g. 10" type="number" value={s1.yearsAtCity} onChange={e => set1('yearsAtCity', e.target.value)} />
                     </FormField>
+
+                    <div className="fg-full">
+                      <FormField label="Sales Officer Name">
+                        <input className="fi" placeholder="Enter sales officer name" value={s1.salesOfficer} onChange={e => set1('salesOfficer', e.target.value)} />
+                      </FormField>
+                    </div>
                   </div>
                 )}
 
@@ -426,9 +432,17 @@ export default function HomePage() {
                   <div className="form-grid">
                     <div className="form-section-title">Vehicle & Loan Details</div>
 
+                    <FormField label="Make">
+                      <input className="fi" placeholder="e.g. Toyota" value={s3.make} onChange={e => set3('make', e.target.value)} />
+                    </FormField>
+
+                    <FormField label="Model">
+                      <input className="fi" placeholder="e.g. Hyryder" value={s3.model} onChange={e => set3('model', e.target.value)} />
+                    </FormField>
+
                     <div className="fg-full">
-                      <FormField label="Vehicle Model">
-                        <input className="fi" placeholder="e.g. Toyota Hyryder S Hybrid" value={s3.vehicleModel} onChange={e => set3('vehicleModel', e.target.value)} />
+                      <FormField label="Variant">
+                        <input className="fi" placeholder="e.g. S Hybrid" value={s3.variant} onChange={e => set3('variant', e.target.value)} />
                       </FormField>
                     </div>
 
