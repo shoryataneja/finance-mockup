@@ -36,7 +36,7 @@ function fmtNum(v) { return v ? '₹' + Number(v).toLocaleString('en-IN') : '₹
 const STEP_LABELS = ['Personal Info', 'Employment & Finance', 'Vehicle & Loan'];
 
 // ── Step 1 default state ──
-const S1_INIT = { name: '', dob: '', age: '', gender: '', marital: '', address: '', residence: '', yearsAtAddress: '', yearsAtCity: '', salesOfficer: '' };
+const S1_INIT = { name: '', dob: '', age: '', gender: '', marital: '', address: '', residence: '', yearsAtAddress: '', yearsAtCity: '', salesOfficer: '', branch: '' };
 // ── Step 2 default state ──
 const S2_INIT = {
   profile: '', yearsInJob: '', officeStatus: '', incomeProfile: '', proofOfIncome: '',
@@ -84,7 +84,7 @@ export default function HomePage() {
   const set3 = (k, v) => setS3(f => ({ ...f, [k]: v }));
   const toggle2 = (k, v) => setS2(f => ({ ...f, [k]: f[k].includes(v) ? f[k].filter(x => x !== v) : [...f[k], v] }));
 
-  const s1Valid = s1.name && s1.dob && s1.age && s1.gender && s1.marital && s1.address && s1.residence && s1.yearsAtAddress && s1.yearsAtCity && s1.salesOfficer;
+  const s1Valid = s1.name && s1.dob && s1.age && s1.gender && s1.marital && s1.address && s1.residence && s1.yearsAtAddress && s1.yearsAtCity && s1.salesOfficer && s1.branch;
   const s2Valid = s2.profile && s2.yearsInJob && s2.officeStatus && s2.incomeProfile && s2.proofOfIncome &&
     s2.accountBank && s2.existingVehicle && s2.vehicleModel && s2.trackStatus &&
     s2.incomePerMonth && s2.existingEmiTotal && s2.cibilScore && s2.additionalIncome && s2.consentGiven &&
@@ -314,6 +314,12 @@ export default function HomePage() {
                     <div className="fg-full">
                       <FormField label="Sales Officer Name">
                         <input className="fi" placeholder="Enter sales officer name" value={s1.salesOfficer} onChange={e => set1('salesOfficer', e.target.value)} />
+                      </FormField>
+                    </div>
+
+                    <div className="fg-full">
+                      <FormField label="Branch Name">
+                        <input className="fi" placeholder="Enter branch name" value={s1.branch} onChange={e => set1('branch', e.target.value)} />
                       </FormField>
                     </div>
                   </div>
