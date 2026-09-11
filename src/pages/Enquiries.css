@@ -218,3 +218,102 @@
   font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s;
 }
 .empty-reset-btn:hover { opacity: 0.85; }
+
+/* ══════════════════════════════════════════
+   TAGGING
+══════════════════════════════════════════ */
+
+/* Tagged row — colored left border */
+.enq-table tbody tr[style*="--tag-color"] td:first-child {
+  border-left: 3px solid var(--tag-color);
+}
+
+/* Dot in # column */
+.tag-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Note pill next to customer name */
+.tag-note-pill {
+  display: inline-block;
+  font-size: 10px; font-weight: 600;
+  padding: 1px 7px; border-radius: 20px;
+  margin-left: 7px; vertical-align: middle;
+  max-width: 120px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Tag swatch in filter dropdown */
+.tag-swatch {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Tag Popover ── */
+.tag-popover {
+  position: fixed;
+  z-index: 999;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.14);
+  padding: 14px 16px;
+  width: 220px;
+  animation: ddIn 0.15s ease;
+}
+
+.tag-popover-title {
+  font-size: 13px; font-weight: 700;
+  color: var(--text); margin-bottom: 12px;
+}
+
+.tag-color-row {
+  display: flex; gap: 8px; margin-bottom: 12px;
+}
+
+.tag-color-btn {
+  width: 26px; height: 26px;
+  border-radius: 50%; border: 2.5px solid transparent;
+  cursor: pointer; transition: transform 0.12s, border-color 0.12s;
+  flex-shrink: 0;
+}
+.tag-color-btn:hover { transform: scale(1.15); }
+.tag-color-btn.selected { border-color: #1a1a2e; transform: scale(1.15); }
+
+.tag-note-input {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 8px 10px;
+  font-size: 12px; color: var(--text);
+  outline: none; background: #f4f7fb;
+  transition: border-color 0.15s;
+  margin-bottom: 12px;
+}
+.tag-note-input:focus { border-color: var(--primary); background: #fff; }
+
+.tag-popover-actions {
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+
+.tag-save-btn {
+  padding: 7px 14px; border-radius: 8px;
+  background: var(--primary); color: #fff;
+  font-size: 12px; font-weight: 700;
+  border: none; cursor: pointer; transition: opacity 0.15s;
+}
+.tag-save-btn:hover { opacity: 0.85; }
+
+.tag-remove-btn {
+  padding: 7px 12px; border-radius: 8px;
+  background: var(--red-bg); color: var(--red);
+  font-size: 12px; font-weight: 600;
+  border: 1.5px solid #f5c6c6; cursor: pointer; transition: opacity 0.15s;
+}
+.tag-remove-btn:hover { opacity: 0.8; }

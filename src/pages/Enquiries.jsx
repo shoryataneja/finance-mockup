@@ -1,7 +1,26 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ENQUIRIES, EXECUTIVES } from '../data/enquiries';
 import './Enquiries.css';
+
+const TAG_COLORS = [
+  { id: 'red',    label: 'Red',    hex: '#ef4444' },
+  { id: 'orange', label: 'Orange', hex: '#f97316' },
+  { id: 'yellow', label: 'Yellow', hex: '#eab308' },
+  { id: 'green',  label: 'Green',  hex: '#22c55e' },
+  { id: 'blue',   label: 'Blue',   hex: '#3b82f6' },
+  { id: 'purple', label: 'Purple', hex: '#a855f7' },
+];
+
+function useTags() {
+  const [tags, setTags] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('enq_tags') || '{}'); } catch { return {}; }
+  });
+  const save = (next) => { setTags(next); localStorage.setItem('enq_tags', JSON.stringify(next)); };
+  const setTag = (id, color, note) => save({ ...tags, [id]: { color, note } });
+  const removeTag = (id) => { const next = { ...tags }; delete next[id]; save(next); };
+  return { tags, setTag, removeTag };
+}
 
 const STATUS_CLASS = {
   'In-Progress': 'status-indigo',
@@ -37,12 +56,15 @@ const INIT_FILTERS = {
   dateFrom: '', dateTo: '',
   loanMin: '', loanMax: '',
   cibilMin: '', cibilMax: '',
+  tagColors: [],
   sort: 'date_desc',
 };
 
 export default function EnquiriesPage() {
   const navigate = useNavigate();
   const [filters, setFilters] = useState(INIT_FILTERS);
+  const { tags, setTag, removeTag } = useTags();
+  const [tagPopover, setTagPopover] = useState(null); // { id, x, y }
 
   const set = (k, v) => setFilters(f => ({ ...f, [k]: v }));
   const toggleArr = (k, v) => setFilters(f => ({ ...f, [k]: f[k].includes(v) ? f[k].filter(x => x !== v) : [...f[k], v] }));
@@ -60,6 +82,7 @@ export default function EnquiriesPage() {
     if (filters.loanMin || filters.loanMax) n++;
     if (filters.cibilMin || filters.cibilMax) n++;
     if (filters.bankStages.length) n++;
+    if (filters.tagColors.length) n++;
     return n;
   }, [filters]);
 
@@ -87,6 +110,7 @@ export default function EnquiriesPage() {
     if (filters.cibilMin) list = list.filter(e => e.cibil >= Number(filters.cibilMin));
     if (filters.cibilMax) list = list.filter(e => e.cibil <= Number(filters.cibilMax));
     if (filters.bankStages.length) list = list.filter(e => e.status === 'In-Progress' && filters.bankStages.includes(e.bankStage));
+    if (filters.tagColors.length) list = list.filter(e => tags[e.id] && filters.tagColors.includes(tags[e.id].color));
     list.sort((a, b) => {
       switch (filters.sort) {
         case 'date_asc':   return a.dateRaw.localeCompare(b.dateRaw);
@@ -101,8 +125,13 @@ export default function EnquiriesPage() {
     return list;
   }, [filters]);
 
+  const handleRowContextMenu = (e, id) => {
+    e.preventDefault();
+    setTagPopover({ id, x: e.clientX, y: e.clientY });
+  };
+
   return (
-    <div className="enq-page">
+    <div className="enq-page" onClick={() => setTagPopover(null)}>
       <div className="enq-topbar">
         <div>
           <div className="enq-page-title">Enquiries</div>
@@ -221,6 +250,19 @@ export default function EnquiriesPage() {
             </div>
           </RangeDropdown>
 
+          <DropSelect
+            label="Tag"
+            options={TAG_COLORS.map(c => c.id)}
+            selected={filters.tagColors}
+            onToggle={v => toggleArr('tagColors', v)}
+            display={filters.tagColors.length === 0 ? 'All Tags' : filters.tagColors.length === 1 ? TAG_COLORS.find(c => c.id === filters.tagColors[0])?.label : `${filters.tagColors.length} colors`}
+            active={filters.tagColors.length > 0}
+            renderOption={(opt) => {
+              const c = TAG_COLORS.find(x => x.id === opt);
+              return <><span className="tag-swatch" style={{ background: c.hex }} />{c.label}</>;
+            }}
+          />
+
           <div className="fb-divider" />
 
           <select className="fb-sort" value={filters.sort} onChange={e => set('sort', e.target.value)}>
@@ -259,13 +301,25 @@ export default function EnquiriesPage() {
               </thead>
               <tbody>
                 {filtered.map((item, i) => (
-                  <tr key={item.id} className="clickable-row" onClick={() => navigate(`/enquiries/${item.id}`)}>
-                    <td className="row-num">{i + 1}</td>
+                  <tr
+                    key={item.id}
+                    className="clickable-row"
+                    style={tags[item.id] ? { '--tag-color': TAG_COLORS.find(c => c.id === tags[item.id].color)?.hex } : {}}
+                    onClick={() => navigate(`/enquiries/${item.id}`)}
+                    onContextMenu={e => handleRowContextMenu(e, item.id)}
+                  >
+                    <td className="row-num">
+                      {tags[item.id] && <span className="tag-dot" style={{ background: TAG_COLORS.find(c => c.id === tags[item.id].color)?.hex }} />}
+                      {i + 1}
+                    </td>
                     <td>
                       <div className="cust-cell">
                         <div className="cust-avatar">{initials(item.name)}</div>
                         <div>
-                          <div className="cust-name">{item.name}</div>
+                          <div className="cust-name">
+                            {item.name}
+                            {tags[item.id]?.note && <span className="tag-note-pill" style={{ background: TAG_COLORS.find(c => c.id === tags[item.id].color)?.hex + '22', color: TAG_COLORS.find(c => c.id === tags[item.id].color)?.hex }}>{tags[item.id].note}</span>}
+                          </div>
                           <div className="cust-id">{item.enquiryId}</div>
                         </div>
                       </div>
@@ -294,12 +348,72 @@ export default function EnquiriesPage() {
           )}
         </div>
       </div>
+
+      {tagPopover && (
+        <TagPopover
+          id={tagPopover.id}
+          x={tagPopover.x}
+          y={tagPopover.y}
+          current={tags[tagPopover.id]}
+          onSave={(color, note) => { setTag(tagPopover.id, color, note); setTagPopover(null); }}
+          onRemove={() => { removeTag(tagPopover.id); setTagPopover(null); }}
+          onClose={() => setTagPopover(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── Tag Popover ──
+function TagPopover({ id, x, y, current, onSave, onRemove, onClose }) {
+  const [color, setColor] = useState(current?.color || TAG_COLORS[0].id);
+  const [note, setNote] = useState(current?.note || '');
+  const ref = useRef();
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.right > window.innerWidth) el.style.left = (x - rect.width) + 'px';
+    if (rect.bottom > window.innerHeight) el.style.top = (y - rect.height) + 'px';
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="tag-popover"
+      style={{ left: x, top: y }}
+      onClick={e => e.stopPropagation()}
+    >
+      <div className="tag-popover-title">🏷️ Tag Enquiry</div>
+      <div className="tag-color-row">
+        {TAG_COLORS.map(c => (
+          <button
+            key={c.id}
+            className={`tag-color-btn${color === c.id ? ' selected' : ''}`}
+            style={{ background: c.hex }}
+            title={c.label}
+            onClick={() => setColor(c.id)}
+          />
+        ))}
+      </div>
+      <input
+        className="tag-note-input"
+        placeholder="Add a note (optional)"
+        value={note}
+        onChange={e => setNote(e.target.value)}
+        maxLength={30}
+      />
+      <div className="tag-popover-actions">
+        {current && <button className="tag-remove-btn" onClick={onRemove}>Remove</button>}
+        <button className="tag-save-btn" onClick={() => onSave(color, note)}>Save Tag</button>
+      </div>
     </div>
   );
 }
 
 // ── Multi-select dropdown ──
-function DropSelect({ label, options, selected, onToggle, display, active }) {
+function DropSelect({ label, options, selected, onToggle, display, active, renderOption }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="dd-wrap" onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false); }} tabIndex={-1}>
@@ -313,7 +427,7 @@ function DropSelect({ label, options, selected, onToggle, display, active }) {
           {options.map(opt => (
             <label key={opt} className="dd-item">
               <input type="checkbox" checked={selected.includes(opt)} onChange={() => onToggle(opt)} />
-              <span>{opt}</span>
+              {renderOption ? renderOption(opt) : <span>{opt}</span>}
             </label>
           ))}
         </div>
