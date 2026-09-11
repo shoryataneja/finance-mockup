@@ -260,11 +260,23 @@ export default function HomePage() {
                     </div>
 
                     <FormField label="Date of Birth">
-                      <input className="fi" type="date" value={s1.dob} onChange={e => set1('dob', e.target.value)} />
+                      <input className="fi" type="date" value={s1.dob} onChange={e => {
+                        const dob = e.target.value;
+                        let age = '';
+                        if (dob) {
+                          const today = new Date();
+                          const b = new Date(dob);
+                          age = today.getFullYear() - b.getFullYear();
+                          const m = today.getMonth() - b.getMonth();
+                          if (m < 0 || (m === 0 && today.getDate() < b.getDate())) age--;
+                          age = String(age);
+                        }
+                        setS1(f => ({ ...f, dob, age }));
+                      }} />
                     </FormField>
 
                     <FormField label="Age">
-                      <input className="fi" placeholder="e.g. 34" type="number" value={s1.age} onChange={e => set1('age', e.target.value)} />
+                      <div className="fi fi-readonly">{s1.age ? `${s1.age} years` : '—'}</div>
                     </FormField>
 
                     <FormField label="Gender">
