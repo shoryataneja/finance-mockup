@@ -174,6 +174,45 @@
 .fh-value { font-size: 22px; font-weight: 800; color: var(--primary); }
 .roi-accent { color: #1a7a4a; }
 
+/* TAT badge */
+.tat-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+/* ── Loan Processing card ── */
+.processing-card { grid-column: 1 / -1; }
+.processing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.processing-block {
+  background: #fafbfd;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.proc-sub-heading {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e8eef7;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 900px) {
+  .processing-grid { grid-template-columns: 1fr; }
+}
+
 /* ── Documents ── */
 .docs-section { display: flex; flex-direction: column; gap: 20px; }
 .docs-header {
@@ -316,6 +355,29 @@
   transition: opacity 0.15s;
 }
 .modal-confirm:hover { opacity: 0.88; }
+
+/* ── Stage capture fields in modal ── */
+.modal-box-wide { width: 520px; }
+.modal-stage-fields {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #fafbfd;
+}
+.modal-fields-title {
+  font-size: 10px; font-weight: 800; color: var(--primary);
+  letter-spacing: 0.8px; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.modal-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 480px) {
+  .modal-fields-grid { grid-template-columns: 1fr; }
+}
+.modal-field .status-input { min-width: 0; }
 
 /* ── Not found ── */
 .detail-not-found {

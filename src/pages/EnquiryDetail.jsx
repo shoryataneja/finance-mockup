@@ -27,14 +27,110 @@ const STAGE_ACTIONS = [
 
 const DOC_CATEGORIES = ['KYC', 'Income Proof', 'Bank Statement', 'Vehicle Documents', 'Other'];
 
+const N_DAY_SUGGESTIONS = [
+  'CIBIL Pending', 'CIBIL Verified', 'FI Pending', 'FI Done',
+  'Waiting for Approval', 'Loan Rejected', 'Agreement Pending',
+];
+
+// Fields captured per target stage in the "Update Status" modal.
+const STAGE_FIELDS = {
+  1: [
+    { key: 'date', label: 'Order Date', type: 'date' },
+    { key: 'documentsCollectedDate', label: 'Documents Collected Date', type: 'date' },
+    { key: 'documentCollectionDelayRemarks', label: 'Collection Delay Remarks', type: 'text', placeholder: 'e.g. Awaiting salary slips' },
+    { key: 'loginDate', label: 'Login Date (N)', type: 'date' },
+    { key: 'nDayStatus', label: 'N Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
+  ],
+  3: [
+    { key: 'nPlus1DayStatus', label: 'N+1 Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
+  ],
+  4: [
+    { key: 'approvalDate', label: 'Approval Date', type: 'date' },
+  ],
+  5: [
+    { key: 'agreementDate', label: 'Agreement Date', type: 'date' },
+  ],
+  6: [
+    { key: 'disbursementDate', label: 'Disbursement Date', type: 'date' },
+  ],
+};
+
+const UPDATES_KEY = 'enq_updates';
+
+function loadUpdates() {
+  try {
+    return JSON.parse(localStorage.getItem(UPDATES_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveUpdates(map) {
+  try {
+    localStorage.setItem(UPDATES_KEY, JSON.stringify(map));
+  } catch {
+    // ignore storage failures in mockup
+  }
+}
+
 const STATUS_CLASS = {
   Sanctioned: 'status-green',
+  Disbursed: 'status-green',
   Rejected: 'status-red',
   Pending: 'status-amber',
   'In-Progress': 'status-indigo',
 };
 
 function fmt(n) { return '₹' + n.toLocaleString('en-IN'); }
+
+function parseDate(str) {
+  if (!str) return null;
+  if (/\d{4}-\d{2}-\d{2}/.test(String(str))) {
+    const [y, m, d] = String(str).split('-').map(Number);
+    const p = new Date(y, m - 1, d);
+    return isNaN(p.getTime()) ? null : p;
+  }
+  const parts = String(str).split(' ');
+  if (parts.length < 3) return null;
+  const months = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+  const day = parseInt(parts[0], 10);
+  const month = months[parts[1]];
+  const year = parseInt(parts[2], 10);
+  if (!month && month !== 0) return null;
+  const parsed = new Date(year, month, day);
+  return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function daysBetween(from, to) {
+  const a = parseDate(from), b = parseDate(to);
+  if (!a || !b || b < a) return null;
+  return Math.round((b - a) / (1000 * 60 * 60 * 24));
+}
+
+function toDateInput(value) {
+  const d = parseDate(value);
+  if (!d) return '';
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
+function toDisplayDate(value) {
+  if (!value) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(value))) {
+    const d = parseDate(value);
+    if (!d) return '';
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+  return value;
+}
+
+function tatText(from, to) {
+  const n = daysBetween(from, to);
+  if (n === null || n === undefined) return '—';
+  return `${n} day${n === 1 ? '' : 's'}`;
+}
 
 function InfoRow({ label, value }) {
   return (
@@ -50,10 +146,15 @@ export default function EnquiryDetail() {
   const navigate = useNavigate();
   const original = ENQUIRIES.find(e => e.id === Number(id));
 
-  const [enq, setEnq] = useState(original ? { ...original, documents: [...original.documents], history: [...original.history] } : null);
+  const [enq, setEnq] = useState(() => {
+    if (!original) return null;
+    const saved = loadUpdates()[original.id] || {};
+    return { ...original, ...saved, documents: [...original.documents], history: [...original.history] };
+  });
   const [activeTab, setActiveTab] = useState('overview');
   const [remarkModal, setRemarkModal] = useState(null); // { stageIdx }
   const [remark, setRemark] = useState('');
+  const [stageFields, setStageFields] = useState({});
   const [docModal, setDocModal] = useState(false);
   const [newDoc, setNewDoc] = useState({ category: 'KYC', name: '' });
 
@@ -64,23 +165,58 @@ export default function EnquiryDetail() {
     </div>
   );
 
+  const openStageModal = (stageIdx) => {
+    const fields = (STAGE_FIELDS[stageIdx] || []).reduce((acc, f) => {
+      acc[f.key] = f.type === 'date' ? toDateInput(enq[f.key]) : (enq[f.key] || '');
+      return acc;
+    }, {});
+    setStageFields(fields);
+    setRemark('');
+    setRemarkModal({ stageIdx });
+  };
+
+  const setField = (key, val) => setStageFields(sf => ({ ...sf, [key]: val }));
+
   const advanceStage = () => {
     if (enq.leadStage >= STAGES.length - 1) return;
     const nextStage = enq.leadStage + 1;
+
+    const applied = {};
+    (STAGE_FIELDS[nextStage] || []).forEach(f => {
+      const raw = stageFields[f.key];
+      const val = f.type === 'date' ? toDisplayDate(raw) : (raw || '').trim();
+      if (val) applied[f.key] = val;
+    });
+    if (applied.date) applied.dateRaw = toDateInput(applied.date);
+
     const newEntry = {
       date: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true }),
       activity: STAGES[nextStage],
       by: 'Admin',
       remarks: remark,
     };
+
+    const allText = [remark, ...Object.values(applied)].filter(Boolean).join(' ').toLowerCase();
+    const hasReject = allText.includes('reject');
+    const newStatus = hasReject ? 'Rejected' : nextStage === 1 ? 'In-Progress' : nextStage >= 7 ? 'Sanctioned' : 'In-Progress';
+
     setEnq(e => ({
       ...e,
+      ...applied,
       leadStage: nextStage,
-      status: nextStage === 1 ? 'In-Progress' : nextStage === 4 ? (remark.toLowerCase().includes('reject') ? 'Rejected' : 'In-Progress') : nextStage >= 7 ? 'Sanctioned' : 'In-Progress',
+      status: newStatus,
       history: [...e.history, newEntry],
     }));
+
+    if (Object.keys(applied).length > 0) {
+      const updates = loadUpdates();
+      updates[enq.id] = { ...(updates[enq.id] || {}), ...applied };
+      saveUpdates(updates);
+    }
+
     setRemarkModal(null);
     setRemark('');
+    setStageFields({});
   };
 
   const addDocument = () => {
@@ -124,7 +260,7 @@ export default function EnquiryDetail() {
         <div className="detail-topbar-right">
           <span className={`status-badge ${STATUS_CLASS[enq.status]}`}>{enq.status}</span>
           {nextActionLabel && (
-            <button className="action-btn-primary" onClick={() => setRemarkModal({ stageIdx: enq.leadStage + 1 })}>
+            <button className="action-btn-primary" onClick={() => openStageModal(enq.leadStage + 1)}>
               {nextActionLabel} →
             </button>
           )}
@@ -207,11 +343,75 @@ export default function EnquiryDetail() {
               <div className="card-title">🚗 Vehicle Details</div>
               <InfoRow label="Make" value={enq.make} />
               <InfoRow label="Model" value={enq.model} />
+              <InfoRow label="Suffix" value={enq.suffix} />
               <InfoRow label="Variant" value={enq.variant} />
               <InfoRow label="Vehicle Price" value={fmt(enq.vehiclePrice)} />
               <InfoRow label="Dealer" value={enq.dealer} />
-              <InfoRow label="Branch" value={enq.branch} />
+              <InfoRow label="Dealership Branch" value={enq.branch} />
+              <InfoRow label="Invoice Number" value={enq.invoiceNumber} />
+              <InfoRow label="RC Number" value={enq.rcNumber} />
+              <div className="co-sub-heading" style={{ marginTop: 12 }}>Insurance</div>
+              <InfoRow label="Insurance Company" value={enq.insuranceCompany} />
+              <InfoRow label="Policy Number" value={enq.policyNumber} />
+            </div>
+
+            {/* Document Collection */}
+            <div className="detail-card">
+              <div className="card-title">📄 Document Collection</div>
+              <InfoRow label="Order Date" value={enq.date} />
+              <InfoRow label="Documents Collected Date" value={enq.documentsCollectedDate} />
+              <InfoRow label="Order → Documents TAT" value={<span className="tat-badge">{tatText(enq.dateRaw, enq.documentsCollectedDate)}</span>} />
+              {enq.documentCollectionDelayRemarks ? (
+                <InfoRow label="Delay Remarks" value={enq.documentCollectionDelayRemarks} />
+              ) : (
+                <InfoRow label="Delay Remarks" value="None" />
+              )}
+            </div>
+
+            {/* Finance / Bank Details */}
+            <div className="detail-card">
+              <div className="card-title">🏢 Finance / Bank Details</div>
+              <InfoRow label="Finance Company" value={enq.bank} />
+              <InfoRow label="Bank Branch" value={enq.bankBranch} />
+              <InfoRow label="Bank Executive" value={enq.bankExecutive} />
+              <InfoRow label="Branch Manager" value={enq.branchManager} />
+              <InfoRow label="Branch Manager Number" value={enq.branchManagerPhone} />
+              <InfoRow label="Branch Mail ID" value={enq.branchManagerEmail} />
+            </div>
+
+            {/* Sales & Finance Team */}
+            <div className="detail-card">
+              <div className="card-title">👥 Sales & Finance Team</div>
+              <div className="co-sub-heading">Sales Team</div>
               <InfoRow label="Sales Officer" value={enq.salesOfficer} />
+              <InfoRow label="Team Leader" value={enq.teamLeader} />
+              <div className="co-sub-heading" style={{ marginTop: 12 }}>Finance Team</div>
+              <InfoRow label="FE" value={enq.executive} />
+              <InfoRow label="Team Lead" value={enq.teamLead} />
+            </div>
+
+            {/* Loan Processing / Timeline */}
+            <div className="detail-card processing-card">
+              <div className="card-title">⏱ Loan Processing Timeline</div>
+              <div className="processing-grid">
+                <div className="processing-block">
+                  <div className="proc-sub-heading">Login & Processing</div>
+                  <InfoRow label="Login Date (N)" value={enq.loginDate} />
+                  <InfoRow label="N Day Status" value={enq.nDayStatus} />
+                  <InfoRow label="N+1 Day Status" value={enq.nPlus1DayStatus} />
+                </div>
+                <div className="processing-block">
+                  <div className="proc-sub-heading">Approval</div>
+                  <InfoRow label="Approval Date" value={enq.approvalDate} />
+                  <InfoRow label="Login → Approval TAT" value={<span className="tat-badge">{tatText(enq.loginDate, enq.approvalDate)}</span>} />
+                </div>
+                <div className="processing-block">
+                  <div className="proc-sub-heading">Agreement & Disbursement</div>
+                  <InfoRow label="Agreement Date" value={enq.agreementDate} />
+                  <InfoRow label="Disbursement Date" value={enq.disbursementDate} />
+                  <InfoRow label="Login → Disbursement TAT" value={<span className="tat-badge">{tatText(enq.loginDate, enq.disbursementDate)}</span>} />
+                </div>
+              </div>
             </div>
 
             {/* Co-Applicant */}
@@ -253,19 +453,24 @@ export default function EnquiryDetail() {
                   <div className="fh-value">{fmt(enq.loanAmount)}</div>
                 </div>
                 <div className="finance-highlight">
+                  <div className="fh-label">Net Disbursal Amount</div>
+                  <div className="fh-value">{enq.netDisbursalAmount ? fmt(enq.netDisbursalAmount) : '—'}</div>
+                </div>
+                <div className="finance-highlight">
                   <div className="fh-label">EMI / Month</div>
                   <div className="fh-value">{fmt(enq.emi)}</div>
                 </div>
                 <div className="finance-highlight">
-                  <div className="fh-label">ROI</div>
+                  <div className="fh-label">Bank Rate</div>
                   <div className="fh-value roi-accent">{enq.roi}</div>
                 </div>
               </div>
-              <InfoRow label="Selected Bank" value={enq.bank} />
-              <InfoRow label="Down Payment" value={fmt(enq.downPayment)} />
-              <InfoRow label="Vehicle Price" value={fmt(enq.vehiclePrice)} />
+              <InfoRow label="Customer Rate" value={enq.customerRate} />
+              <InfoRow label="Plough Back" value={enq.ploughBack ? fmt(enq.ploughBack) : '—'} />
               <InfoRow label="Tenure" value={`${enq.tenure} months`} />
-              <InfoRow label="Finance Executive" value={enq.executive} />
+              <InfoRow label="Finance Company" value={enq.bank} />
+              <InfoRow label="Down Payment" value={fmt(enq.downPayment)} />
+              <InfoRow label="Final Status" value={<span className={`status-badge ${STATUS_CLASS[enq.status]}`}>{enq.status}</span>} />
             </div>
           </div>
         )}
@@ -340,9 +545,50 @@ export default function EnquiryDetail() {
       {/* Remark Modal */}
       {remarkModal && (
         <div className="modal-overlay" onClick={() => setRemarkModal(null)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
+          <div className="modal-box modal-box-wide" onClick={e => e.stopPropagation()}>
             <div className="modal-title">Update Status</div>
             <div className="modal-stage-label">→ {STAGES[remarkModal.stageIdx]}</div>
+
+            {STAGE_FIELDS[remarkModal.stageIdx] && (
+              <div className="modal-stage-fields">
+                <div className="modal-fields-title">Stage details</div>
+                <div className="modal-fields-grid">
+                  {STAGE_FIELDS[remarkModal.stageIdx].map(f => (
+                    <div className="modal-field" key={f.key}>
+                      <label>{f.label}</label>
+                      {f.type === 'date' ? (
+                        <input
+                          type="date"
+                          value={stageFields[f.key] || ''}
+                          onChange={e => setField(f.key, e.target.value)}
+                        />
+                      ) : f.type === 'status' ? (
+                        <>
+                          <input
+                            className="status-input"
+                            list={`nandi-dl-${f.key}`}
+                            value={stageFields[f.key] || ''}
+                            onChange={e => setField(f.key, e.target.value)}
+                            placeholder="Type or choose status..."
+                          />
+                          <datalist id={`nandi-dl-${f.key}`}>
+                            {f.suggestions.map(s => <option key={s} value={s} />)}
+                          </datalist>
+                        </>
+                      ) : (
+                        <input
+                          type="text"
+                          value={stageFields[f.key] || ''}
+                          onChange={e => setField(f.key, e.target.value)}
+                          placeholder={f.placeholder}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <textarea
               className="modal-textarea"
               placeholder="Add remarks (optional)..."
@@ -351,7 +597,7 @@ export default function EnquiryDetail() {
               rows={3}
             />
             <div className="modal-actions">
-              <button className="modal-cancel" onClick={() => { setRemarkModal(null); setRemark(''); }}>Cancel</button>
+              <button className="modal-cancel" onClick={() => { setRemarkModal(null); setRemark(''); setStageFields({}); }}>Cancel</button>
               <button className="modal-confirm" onClick={advanceStage}>Confirm Update</button>
             </div>
           </div>

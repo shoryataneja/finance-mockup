@@ -37,7 +37,7 @@ function fmtNum(v) { return v ? '₹' + Number(v).toLocaleString('en-IN') : '₹
 const STEP_LABELS = ['Personal Info', 'Employment & Finance', 'Vehicle & Loan'];
 
 // ── Step 1 default state ──
-const S1_INIT = { name: '', dob: '', age: '', gender: '', marital: '', address: '', residence: '', yearsAtAddress: '', yearsAtCity: '', salesOfficer: '', branch: '' };
+const S1_INIT = { name: '', dob: '', age: '', gender: '', marital: '', address: '', residence: '', yearsAtAddress: '', yearsAtCity: '', salesOfficer: '', teamLeader: '', branch: '' };
 // ── Step 2 default state ──
 const S2_INIT = {
   profile: '', yearsInJob: '', officeStatus: '', incomeProfile: '', proofOfIncome: '',
@@ -52,18 +52,26 @@ const S2_INIT = {
   consentGiven: false, consentDateTime: '',
 };
 // ── Step 3 default state ──
-const S3_INIT = { make: '', model: '', variant: '', vehiclePrice: '', downPayment: '', tenure: 60 };
+const S3_INIT = { make: '', model: '', suffix: '', variant: '', vehiclePrice: '', downPayment: '', tenure: 60 };
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const RECENT = ENQUIRIES.slice(0, 5);
+  const MERGED = (() => {
+    try {
+      const updates = JSON.parse(localStorage.getItem('enq_updates') || '{}');
+      return ENQUIRIES.map(e => ({ ...e, ...(updates[e.id] || {}) }));
+    } catch {
+      return ENQUIRIES;
+    }
+  })();
+  const RECENT = MERGED.slice(0, 5);
 
   const KPI = [
-    { label: 'Total Logins',  value: ENQUIRIES.length,                                          color: 'blue',   icon: '📋' },
-    { label: 'In Progress',   value: ENQUIRIES.filter(e => e.status === 'In-Progress').length,  color: 'indigo', icon: '🔄' },
-    { label: 'Sanctioned',    value: ENQUIRIES.filter(e => e.status === 'Sanctioned').length,   color: 'green',  icon: '✅' },
-    { label: 'Disbursed',     value: ENQUIRIES.filter(e => e.status === 'Disbursed').length,    color: 'amber',  icon: '💰' },
-    { label: 'Rejected',      value: ENQUIRIES.filter(e => e.status === 'Rejected').length,     color: 'red',    icon: '❌' },
+    { label: 'Total Logins',  value: MERGED.length,                                          color: 'blue',   icon: '📋' },
+    { label: 'In Progress',   value: MERGED.filter(e => e.status === 'In-Progress').length,  color: 'indigo', icon: '🔄' },
+    { label: 'Sanctioned',    value: MERGED.filter(e => e.status === 'Sanctioned').length,   color: 'green',  icon: '✅' },
+    { label: 'Disbursed',     value: MERGED.filter(e => e.status === 'Disbursed').length,    color: 'amber',  icon: '💰' },
+    { label: 'Rejected',      value: MERGED.filter(e => e.status === 'Rejected').length,     color: 'red',    icon: '❌' },
   ];
 
   // ── Drawer state ──
@@ -99,7 +107,7 @@ export default function HomePage() {
     s2.coApplicant.existingEmi && s2.coApplicant.cibil
   );
 
-  const s1Valid = s1.name && s1.dob && s1.age && s1.gender && s1.marital && s1.address && s1.residence && s1.yearsAtAddress && s1.yearsAtCity && s1.salesOfficer && s1.branch;
+  const s1Valid = s1.name && s1.dob && s1.age && s1.gender && s1.marital && s1.address && s1.residence && s1.yearsAtAddress && s1.yearsAtCity && s1.salesOfficer && s1.teamLeader && s1.branch;
   const s2Valid = s2.profile && s2.yearsInJob && s2.officeStatus && s2.incomeProfile && s2.proofOfIncome &&
     s2.accountBank && s2.existingVehicle && s2.vehicleModel && s2.trackStatus &&
     s2.incomePerMonth && s2.existingEmiTotal && s2.cibilScore && s2.additionalIncome && s2.consentGiven &&
@@ -109,7 +117,7 @@ export default function HomePage() {
   const price = parseFloat(s3.vehiclePrice) || 0;
   const dp = parseFloat(s3.downPayment) || 0;
   const loanAmount = Math.max(0, price - dp);
-  const s3Valid = s3.make.trim() && s3.model.trim() && s3.variant.trim() && price > 0 && dp > 0 && loanAmount > 0;
+  const s3Valid = s3.make.trim() && s3.model.trim() && s3.suffix.trim() && s3.variant.trim() && price > 0 && dp > 0 && loanAmount > 0;
 
   const handleSubmit = () => setSubmitted(true);
 
@@ -330,6 +338,12 @@ export default function HomePage() {
                     <div className="fg-full">
                       <FormField label="Sales Officer Name">
                         <input className="fi" placeholder="Enter sales officer name" value={s1.salesOfficer} onChange={e => set1('salesOfficer', e.target.value)} />
+                      </FormField>
+                    </div>
+
+                    <div className="fg-full">
+                      <FormField label="Team Leader Name">
+                        <input className="fi" placeholder="Enter team leader name" value={s1.teamLeader} onChange={e => set1('teamLeader', e.target.value)} />
                       </FormField>
                     </div>
 
@@ -559,6 +573,10 @@ export default function HomePage() {
 
                     <FormField label="Model">
                       <input className="fi" placeholder="e.g. Hyryder" value={s3.model} onChange={e => set3('model', e.target.value)} />
+                    </FormField>
+
+                    <FormField label="Suffix">
+                      <input className="fi" placeholder="e.g. Hybrid / Diesel / CNG" value={s3.suffix} onChange={e => set3('suffix', e.target.value)} />
                     </FormField>
 
                     <div className="fg-full">
