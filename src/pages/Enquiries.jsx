@@ -49,10 +49,19 @@ function multiLabel(arr, placeholder) {
   if (!arr.length) return placeholder;
   return arr.length === 1 ? arr[0] : `${arr[0]} +${arr.length - 1}`;
 }
+function mergeUpdates(base) {
+  try {
+    const updates = JSON.parse(localStorage.getItem('enq_updates') || '{}');
+    return base.map(e => ({ ...e, ...(updates[e.id] || {}) }));
+  } catch {
+    return base;
+  }
+}
 
 const INIT_FILTERS = {
   query: '', statuses: [], executives: [], banks: [], bankStages: [],
   profiles: [], residences: [],
+  nDayStatuses: [], nPlus1Statuses: [],
   dateFrom: '', dateTo: '',
   loanMin: '', loanMax: '',
   cibilMin: '', cibilMax: '',
@@ -78,6 +87,8 @@ export default function EnquiriesPage() {
     if (filters.banks.length) n++;
     if (filters.profiles.length) n++;
     if (filters.residences.length) n++;
+    if (filters.nDayStatuses.length) n++;
+    if (filters.nPlus1Statuses.length) n++;
     if (filters.dateFrom || filters.dateTo) n++;
     if (filters.loanMin || filters.loanMax) n++;
     if (filters.cibilMin || filters.cibilMax) n++;
@@ -87,7 +98,7 @@ export default function EnquiriesPage() {
   }, [filters]);
 
   const filtered = useMemo(() => {
-    let list = [...ENQUIRIES];
+    let list = mergeUpdates([...ENQUIRIES]);
     if (filters.query) {
       const q = filters.query.toLowerCase();
       list = list.filter(e =>
@@ -99,6 +110,8 @@ export default function EnquiriesPage() {
       );
     }
     if (filters.statuses.length)   list = list.filter(e => filters.statuses.includes(e.status));
+    if (filters.nDayStatuses.length) list = list.filter(e => filters.nDayStatuses.includes((e.nDayStatus || '').trim() || 'Not Filled'));
+    if (filters.nPlus1Statuses.length) list = list.filter(e => filters.nPlus1Statuses.includes((e.nPlus1DayStatus || '').trim() || 'Not Filled'));
     if (filters.executives.length) list = list.filter(e => filters.executives.includes(e.executive));
     if (filters.banks.length)      list = list.filter(e => filters.banks.includes(e.bank));
     if (filters.profiles.length)   list = list.filter(e => filters.profiles.includes(e.profile));
@@ -125,6 +138,9 @@ export default function EnquiriesPage() {
     return list;
   }, [filters]);
 
+  const ndOptions = ['Not Filled', ...Array.from(new Set(mergeUpdates([...ENQUIRIES]).map(e => (e.nDayStatus || '').trim()).filter(Boolean)))];
+  const n1Options = ['Not Filled', ...Array.from(new Set(mergeUpdates([...ENQUIRIES]).map(e => (e.nPlus1DayStatus || '').trim()).filter(Boolean)))];
+
   const handleRowContextMenu = (e, id) => {
     e.preventDefault();
     setTagPopover({ id, x: e.clientX, y: e.clientY });
@@ -137,7 +153,7 @@ export default function EnquiriesPage() {
           <div className="enq-page-title">Enquiries</div>
           <div className="enq-page-sub">All customer loan enquiries · click any row to view full details</div>
         </div>
-        <div className="enq-count-badge">{filtered.length} of {ENQUIRIES.length} records</div>
+        <div className="enq-count-badge">{filtered.length} of {mergeUpdates([...ENQUIRIES]).length} records</div>
       </div>
 
       <div className="enq-body">
@@ -173,6 +189,24 @@ export default function EnquiriesPage() {
             onToggle={v => toggleArr('executives', v)}
             display={multiLabel(filters.executives, 'All Executives')}
             active={filters.executives.length > 0}
+          />
+
+          <DropSelect
+            label="N Day"
+            options={ndOptions}
+            selected={filters.nDayStatuses}
+            onToggle={v => toggleArr('nDayStatuses', v)}
+            display={multiLabel(filters.nDayStatuses, 'All N Day')}
+            active={filters.nDayStatuses.length > 0}
+          />
+
+          <DropSelect
+            label="N+1 Day"
+            options={n1Options}
+            selected={filters.nPlus1Statuses}
+            onToggle={v => toggleArr('nPlus1Statuses', v)}
+            display={multiLabel(filters.nPlus1Statuses, 'All N+1')}
+            active={filters.nPlus1Statuses.length > 0}
           />
 
           <DropSelect
