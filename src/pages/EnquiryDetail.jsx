@@ -57,6 +57,13 @@ const STAGE_FIELDS = {
 
 const UPDATES_KEY = 'enq_updates';
 
+// Fields editable any time from the Loan Processing Timeline card.
+const PROCESS_EDIT_FIELDS = [
+  { key: 'loginDate', label: 'Login Date (N)', type: 'date' },
+  { key: 'nDayStatus', label: 'N Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
+  { key: 'nPlus1DayStatus', label: 'N+1 Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
+];
+
 function loadUpdates() {
   try {
     return JSON.parse(localStorage.getItem(UPDATES_KEY)) || {};
@@ -157,6 +164,7 @@ export default function EnquiryDetail() {
   const [stageFields, setStageFields] = useState({});
   const [docModal, setDocModal] = useState(false);
   const [newDoc, setNewDoc] = useState({ category: 'KYC', name: '' });
+  const [processModal, setProcessModal] = useState(false);
 
   if (!enq) return (
     <div className="detail-not-found">
@@ -176,6 +184,42 @@ export default function EnquiryDetail() {
   };
 
   const setField = (key, val) => setStageFields(sf => ({ ...sf, [key]: val }));
+
+  const openProcessModal = () => {
+    const fields = PROCESS_EDIT_FIELDS.reduce((acc, f) => {
+      acc[f.key] = f.type === 'date' ? toDateInput(enq[f.key]) : (enq[f.key] || '');
+      return acc;
+    }, {});
+    setStageFields(fields);
+    setProcessModal(true);
+  };
+
+  const saveProcessing = () => {
+    const applied = {};
+    PROCESS_EDIT_FIELDS.forEach(f => {
+      const raw = stageFields[f.key];
+      const val = f.type === 'date' ? toDisplayDate(raw) : (raw || '').trim();
+      if (val) applied[f.key] = val;
+    });
+
+    const statusText = [stageFields.nDayStatus, stageFields.nPlus1DayStatus].filter(Boolean).join(' ').toLowerCase();
+    const hasReject = statusText.includes('reject');
+
+    setEnq(e => ({
+      ...e,
+      ...applied,
+      status: hasReject ? 'Rejected' : e.status,
+    }));
+
+    if (Object.keys(applied).length > 0) {
+      const updates = loadUpdates();
+      updates[enq.id] = { ...(updates[enq.id] || {}), ...applied };
+      saveUpdates(updates);
+    }
+
+    setProcessModal(false);
+    setStageFields({});
+  };
 
   const advanceStage = () => {
     if (enq.leadStage >= STAGES.length - 1) return;
@@ -392,7 +436,9 @@ export default function EnquiryDetail() {
 
             {/* Loan Processing / Timeline */}
             <div className="detail-card processing-card">
-              <div className="card-title">⏱ Loan Processing Timeline</div>
+              <div className="card-title card-title-row">⏱ Loan Processing Timeline
+                <button className="edit-btn" onClick={openProcessModal}>✏️ Update Status</button>
+              </div>
               <div className="processing-grid">
                 <div className="processing-block">
                   <div className="proc-sub-heading">Login & Processing</div>
@@ -599,6 +645,50 @@ export default function EnquiryDetail() {
             <div className="modal-actions">
               <button className="modal-cancel" onClick={() => { setRemarkModal(null); setRemark(''); setStageFields({}); }}>Cancel</button>
               <button className="modal-confirm" onClick={advanceStage}>Confirm Update</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Processing Status Modal */}
+      {processModal && (
+        <div className="modal-overlay" onClick={() => setProcessModal(false)}>
+          <div className="modal-box modal-box-wide" onClick={e => e.stopPropagation()}>
+            <div className="modal-title">Update Processing Status</div>
+            <div className="modal-stage-label">N / N+1 Day Tracking · any stage</div>
+            <div className="modal-stage-fields">
+              <div className="modal-fields-title">Processing details</div>
+              <div className="modal-fields-grid">
+                {PROCESS_EDIT_FIELDS.map(f => (
+                  <div className="modal-field" key={f.key}>
+                    <label>{f.label}</label>
+                    {f.type === 'date' ? (
+                      <input
+                        type="date"
+                        value={stageFields[f.key] || ''}
+                        onChange={e => setField(f.key, e.target.value)}
+                      />
+                    ) : (
+                      <>
+                        <input
+                          className="status-input"
+                          list={`nandi-dl-${f.key}`}
+                          value={stageFields[f.key] || ''}
+                          onChange={e => setField(f.key, e.target.value)}
+                          placeholder="Type or choose status..."
+                        />
+                        <datalist id={`nandi-dl-${f.key}`}>
+                          {f.suggestions.map(s => <option key={s} value={s} />)}
+                        </datalist>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="modal-cancel" onClick={() => { setProcessModal(false); setStageFields({}); }}>Cancel</button>
+              <button className="modal-confirm" onClick={saveProcessing}>Save</button>
             </div>
           </div>
         </div>

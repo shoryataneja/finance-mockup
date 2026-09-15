@@ -187,6 +187,15 @@
 
 /* ── Loan Processing card ── */
 .processing-card { grid-column: 1 / -1; }
+.card-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.edit-btn {
+  padding: 5px 12px; border-radius: 7px;
+  background: var(--primary-light); color: var(--primary);
+  font-size: 12px; font-weight: 600;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.edit-btn:hover { opacity: 0.75; }
 .processing-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
