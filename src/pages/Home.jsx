@@ -13,7 +13,8 @@ const STATUS_CLASS = {
   Rejected: 'status-red',
 };
 
-const PROFILES = ['Salaried', 'Business', 'Self Employee', 'Company', 'Agriculture'];
+const PROFILES = ['Salaried', 'Business', 'Self Employee', 'Company'];
+const PROFESSIONS = ['Rental Income', 'Driver Cum Owner', 'Water Supply', 'Real Estate', 'Doctor', 'Lawyer', 'Material Supply', 'Auditors', 'Chartered Accountant', 'Trader', 'Commission Agent', 'Restaurant', 'Agriculture'];
 const GENDERS = ['Male', 'Female', 'Other'];
 const MARITAL = ['Single', 'Married', 'Divorced', 'Widowed'];
 const OFFICE_STATUS = ['Company Owned', 'Self Owned'];
@@ -40,7 +41,7 @@ const STEP_LABELS = ['Personal Info', 'Employment & Finance', 'Vehicle & Loan'];
 const S1_INIT = { name: '', dob: '', age: '', gender: '', marital: '', address: '', residence: '', yearsAtAddress: '', yearsAtCity: '', salesOfficer: '', teamLeader: '', branch: '' };
 // ── Step 2 default state ──
 const S2_INIT = {
-  profile: '', yearsInJob: '', officeStatus: '', incomeProfile: '', proofOfIncome: '',
+  profile: '', profession: '', yearsInJob: '', officeStatus: '', incomeProfile: '', proofOfIncome: '',
   ifAvailable: [], accountBank: '', existingVehicle: '', vehicleModel: '', trackStatus: '',
   incomePerMonth: '', existingEmiTotal: '', cibilScore: '',
   additionalIncome: '', additionalIncomeSource: [], additionalIncomeAmount: '',
@@ -99,7 +100,7 @@ export default function HomePage() {
   const toggle2 = (k, v) => setS2(f => ({ ...f, [k]: f[k].includes(v) ? f[k].filter(x => x !== v) : [...f[k], v] }));
   const setCA = (k, v) => setS2(f => ({ ...f, coApplicant: { ...f.coApplicant, [k]: v } }));
 
-  const coValid = !s2.additionalIncomeSource.includes('Co-Applicant Income') || (
+const coValid = !s2.additionalIncomeSource.includes('Co-Applicant Income') || (
     s2.coApplicant.relation && s2.coApplicant.name && s2.coApplicant.dob &&
     s2.coApplicant.gender && s2.coApplicant.marital && s2.coApplicant.address &&
     s2.coApplicant.residence && s2.coApplicant.profile && s2.coApplicant.employer &&
@@ -108,7 +109,9 @@ export default function HomePage() {
   );
 
   const s1Valid = s1.name && s1.dob && s1.age && s1.gender && s1.marital && s1.address && s1.residence && s1.yearsAtAddress && s1.yearsAtCity && s1.salesOfficer && s1.teamLeader && s1.branch;
-  const s2Valid = s2.profile && s2.yearsInJob && s2.officeStatus && s2.incomeProfile && s2.proofOfIncome &&
+
+  const s2Valid = s2.profile && (s2.profile !== 'Self Employee' || s2.profession) &&
+    s2.yearsInJob && s2.officeStatus && s2.incomeProfile && s2.proofOfIncome &&
     s2.accountBank && s2.existingVehicle && s2.vehicleModel && s2.trackStatus &&
     s2.incomePerMonth && s2.existingEmiTotal && s2.cibilScore && s2.additionalIncome && s2.consentGiven &&
     (s2.proofOfIncome === 'Not Available' || s2.ifAvailable.length > 0) &&
@@ -365,6 +368,14 @@ export default function HomePage() {
                         {PROFILES.map(p => <Chip key={p} label={p} active={s2.profile === p} onClick={() => set2('profile', p)} />)}
                       </div>
                     </FormField>
+
+                    {s2.profile === 'Self Employee' && (
+                      <FormField label="Profession">
+                        <div className="chip-row">
+                          {PROFESSIONS.map(p => <Chip key={p} label={p} active={s2.profession === p} onClick={() => set2('profession', p)} />)}
+                        </div>
+                      </FormField>
+                    )}
 
                     <FormField label="Years in Current Job / Business">
                       <input className="fi" placeholder="e.g. 6" type="number" value={s2.yearsInJob} onChange={e => set2('yearsInJob', e.target.value)} />
