@@ -1,40 +1,38 @@
 import { useState } from 'react';
 import './Users.css';
 
-const ROLES = ['Sales Officer', 'Team Leader – Sales', 'Finance Executive', 'Finance Team Lead', 'Bank Executive', 'Branch Manager'];
-const BRANCHES = ['All Branches', 'Koramangala', 'KP Road', 'KR Road', 'Bommanhalli', 'Jayanagar', 'Whitefield'];
+const ROLES = ['Insurance Executive', 'Finance Executive', 'Team Leader'];
+const BRANCHES = ['All Branches', 'Hosur Road', 'Hosur Road Rural Anekal', 'Hosur Road Rural Attibele', 'Hosur Road Rural Sarjapura', 'B G Road', 'White Field', 'K P Road', 'K P Road Rural Kanakapura', 'K P Road Rural Ramanagara', 'Queens Road', 'Queens Road Rural', 'Banaswadi'];
 const STATUSES = ['All Status', 'Active', 'Inactive'];
 
 const USERS = [
-  { id: 1,  name: 'Ayush Tyagi',     email: 'ayush.tyagi@nandifinance.in',     phone: '+91 98765 43210', role: 'Finance Team Lead',    branch: 'Koramangala', joined: '15 Mar 2022', status: 'Active',   lastLogin: '04 Sep, 9:10 AM' },
-  { id: 2,  name: 'Priya Sharma',    email: 'priya.sharma@nandifinance.in',    phone: '+91 91234 56789', role: 'Finance Executive',     branch: 'Koramangala', joined: '10 Jan 2023', status: 'Active',   lastLogin: '04 Sep, 8:45 AM' },
-  { id: 3,  name: 'Rahul Mehta',     email: 'rahul.mehta@nandifinance.in',     phone: '+91 99887 76655', role: 'Finance Executive',     branch: 'KP Road',     joined: '05 Mar 2023', status: 'Active',   lastLogin: '04 Sep, 9:00 AM' },
-  { id: 4,  name: 'Sneha Patil',     email: 'sneha.patil@nandifinance.in',     phone: '+91 87654 32109', role: 'Finance Executive',     branch: 'KR Road',     joined: '20 Jun 2022', status: 'Active',   lastLogin: '03 Sep, 6:30 PM' },
-  { id: 5,  name: 'Amit Verma',      email: 'amit.verma@nandifinance.in',      phone: '+91 76543 21098', role: 'Finance Executive',     branch: 'Bommanhalli', joined: '12 Sep 2022', status: 'Active',   lastLogin: '04 Sep, 10:15 AM' },
-  { id: 6,  name: 'Deepika Nair',    email: 'deepika.nair@nandifinance.in',    phone: '+91 65432 10987', role: 'Finance Executive',     branch: 'Koramangala', joined: '01 Feb 2024', status: 'Active',   lastLogin: '04 Sep, 8:55 AM' },
-  { id: 7,  name: 'Karan Singh',     email: 'karan.singh@nandifinance.in',     phone: '+91 54321 09876', role: 'Finance Team Lead',     branch: 'KP Road',     joined: '18 Aug 2021', status: 'Active',   lastLogin: '04 Sep, 9:30 AM' },
-  { id: 8,  name: 'Meera Iyer',      email: 'meera.iyer@nandifinance.in',      phone: '+91 43210 98765', role: 'Finance Executive',     branch: 'KR Road',     joined: '15 Nov 2023', status: 'Active',   lastLogin: '03 Sep, 5:00 PM' },
-  { id: 9,  name: 'Vikram Joshi',    email: 'vikram.joshi@nandifinance.in',    phone: '+91 32109 87654', role: 'Finance Team Lead',     branch: 'Bommanhalli', joined: '10 May 2021', status: 'Active',   lastLogin: '04 Sep, 11:00 AM' },
-  { id: 10, name: 'Rajesh Sharma',   email: 'rajesh.sharma@nandifinance.in',   phone: '+91 98001 23456', role: 'Branch Manager',        branch: 'Koramangala', joined: '01 Jan 2020', status: 'Active',   lastLogin: '04 Sep, 9:45 AM' },
-  { id: 11, name: 'Sunita Rao',      email: 'sunita.rao@nandifinance.in',      phone: '+91 97001 23456', role: 'Branch Manager',        branch: 'KP Road',     joined: '15 Mar 2020', status: 'Active',   lastLogin: '04 Sep, 8:30 AM' },
-  { id: 12, name: 'Manoj Kumar',     email: 'manoj.kumar@nandifinance.in',     phone: '+91 96001 23456', role: 'Branch Manager',        branch: 'KR Road',     joined: '01 Jun 2020', status: 'Active',   lastLogin: '03 Sep, 4:00 PM' },
-  { id: 13, name: 'Anita Desai',     email: 'anita.desai@nandifinance.in',     phone: '+91 95001 23456', role: 'Sales Officer',         branch: 'Jayanagar',   joined: '10 Apr 2023', status: 'Active',   lastLogin: '04 Sep, 10:00 AM' },
-  { id: 14, name: 'Rohit Agarwal',   email: 'rohit.agarwal@nandifinance.in',   phone: '+91 94001 23456', role: 'Sales Officer',         branch: 'Whitefield',  joined: '20 Jul 2023', status: 'Active',   lastLogin: '04 Sep, 9:20 AM' },
-  { id: 15, name: 'Pooja Desai',     email: 'pooja.desai@nandifinance.in',     phone: '+91 93001 23456', role: 'Team Leader – Sales',   branch: 'Bommanhalli', joined: '05 Feb 2022', status: 'Active',   lastLogin: '04 Sep, 8:50 AM' },
-  { id: 16, name: 'Suresh Kumar',    email: 'suresh.kumar@nandifinance.in',    phone: '+91 92001 23456', role: 'Team Leader – Sales',   branch: 'Jayanagar',   joined: '12 Aug 2021', status: 'Inactive', lastLogin: '20 Aug, 3:00 PM' },
-  { id: 17, name: 'Nisha Pillai',    email: 'nisha.pillai@nandifinance.in',    phone: '+91 91001 23456', role: 'Bank Executive',        branch: 'KP Road',     joined: '01 Sep 2022', status: 'Active',   lastLogin: '04 Sep, 9:05 AM' },
-  { id: 18, name: 'Arjun Nair',      email: 'arjun.nair@nandifinance.in',      phone: '+91 90001 23456', role: 'Bank Executive',        branch: 'KR Road',     joined: '15 Oct 2022', status: 'Active',   lastLogin: '04 Sep, 10:30 AM' },
-  { id: 19, name: 'Kavya Reddy',     email: 'kavya.reddy@nandifinance.in',     phone: '+91 89001 23456', role: 'Bank Executive',        branch: 'Koramangala', joined: '20 Jan 2023', status: 'Inactive', lastLogin: '15 Aug, 11:00 AM' },
-  { id: 20, name: 'Dinesh Menon',    email: 'dinesh.menon@nandifinance.in',    phone: '+91 88001 23456', role: 'Sales Officer',         branch: 'Whitefield',  joined: '10 Mar 2024', status: 'Active',   lastLogin: '04 Sep, 8:40 AM' },
+  { id: 1,  name: 'Shylaja',          email: 'shylaja@nandifinance.in',          phone: '+91 98001 00001', role: 'Team Leader',         branch: 'Hosur Road',                  joined: '01 Jan 2020', status: 'Active', lastLogin: '04 Sep, 9:10 AM' },
+  { id: 2,  name: 'Sandeep',          email: 'sandeep@nandifinance.in',          phone: '+91 98001 00002', role: 'Insurance Executive', branch: 'Hosur Road',                  joined: '10 Jan 2021', status: 'Active', lastLogin: '04 Sep, 8:45 AM' },
+  { id: 3,  name: 'Vijay',            email: 'vijay@nandifinance.in',            phone: '+91 98001 00003', role: 'Insurance Executive', branch: 'Hosur Road',                  joined: '15 Feb 2021', status: 'Active', lastLogin: '04 Sep, 9:00 AM' },
+  { id: 4,  name: 'Bhaskar',          email: 'bhaskar@nandifinance.in',          phone: '+91 98001 00004', role: 'Insurance Executive', branch: 'Hosur Road',                  joined: '20 Mar 2021', status: 'Active', lastLogin: '03 Sep, 6:30 PM' },
+  { id: 5,  name: 'Hirelinga',        email: 'hirelinga@nandifinance.in',        phone: '+91 98001 00005', role: 'Insurance Executive', branch: 'Hosur Road',                  joined: '05 Apr 2021', status: 'Active', lastLogin: '04 Sep, 10:15 AM' },
+  { id: 6,  name: 'Hemalatha',        email: 'hemalatha@nandifinance.in',        phone: '+91 98001 00006', role: 'Insurance Executive', branch: 'Hosur Road',                  joined: '10 May 2021', status: 'Active', lastLogin: '04 Sep, 8:55 AM' },
+  { id: 7,  name: 'Sunil',            email: 'sunil@nandifinance.in',            phone: '+91 98001 00007', role: 'Insurance Executive', branch: 'K P Road',                    joined: '01 Jun 2021', status: 'Active', lastLogin: '04 Sep, 9:30 AM' },
+  { id: 8,  name: 'Shailesh',         email: 'shailesh@nandifinance.in',         phone: '+91 98001 00008', role: 'Insurance Executive', branch: 'K P Road',                    joined: '15 Jun 2021', status: 'Active', lastLogin: '03 Sep, 5:00 PM' },
+  { id: 9,  name: 'Dilip',            email: 'dilip@nandifinance.in',            phone: '+91 98001 00009', role: 'Insurance Executive', branch: 'K P Road',                    joined: '20 Jul 2021', status: 'Active', lastLogin: '04 Sep, 11:00 AM' },
+  { id: 10, name: 'Srivasta',         email: 'srivasta@nandifinance.in',         phone: '+91 98001 00010', role: 'Insurance Executive', branch: 'K P Road',                    joined: '01 Aug 2021', status: 'Active', lastLogin: '04 Sep, 9:45 AM' },
+  { id: 11, name: 'Anu',              email: 'anu@nandifinance.in',              phone: '+91 98001 00011', role: 'Insurance Executive', branch: 'K P Road',                    joined: '10 Aug 2021', status: 'Active', lastLogin: '04 Sep, 8:30 AM' },
+  { id: 12, name: 'Mahesh',           email: 'mahesh@nandifinance.in',           phone: '+91 98001 00012', role: 'Finance Executive',   branch: 'Queens Road',                 joined: '01 Sep 2021', status: 'Active', lastLogin: '03 Sep, 4:00 PM' },
+  { id: 13, name: 'Shivu',            email: 'shivu@nandifinance.in',            phone: '+91 98001 00013', role: 'Finance Executive',   branch: 'Queens Road',                 joined: '15 Sep 2021', status: 'Active', lastLogin: '04 Sep, 10:00 AM' },
+  { id: 14, name: 'Kavitha',          email: 'kavitha@nandifinance.in',          phone: '+91 98001 00014', role: 'Finance Executive',   branch: 'Queens Road',                 joined: '20 Oct 2021', status: 'Active', lastLogin: '04 Sep, 9:20 AM' },
+  { id: 15, name: 'Gajalakshmi',      email: 'gajalakshmi@nandifinance.in',      phone: '+91 98001 00015', role: 'Insurance Executive', branch: 'Banaswadi',                   joined: '01 Nov 2021', status: 'Active', lastLogin: '04 Sep, 8:50 AM' },
+  { id: 16, name: 'Nagesh',           email: 'nagesh@nandifinance.in',           phone: '+91 98001 00016', role: 'Insurance Executive', branch: 'Banaswadi',                   joined: '10 Nov 2021', status: 'Active', lastLogin: '04 Sep, 9:05 AM' },
+  { id: 17, name: 'Lakshminarayana',  email: 'lakshminarayana@nandifinance.in',  phone: '+91 98001 00017', role: 'Insurance Executive', branch: 'Banaswadi',                   joined: '20 Nov 2021', status: 'Active', lastLogin: '04 Sep, 10:30 AM' },
+  { id: 18, name: 'Pavithra',         email: 'pavithra@nandifinance.in',         phone: '+91 98001 00018', role: 'Insurance Executive', branch: 'Banaswadi',                   joined: '01 Dec 2021', status: 'Active', lastLogin: '04 Sep, 9:15 AM' },
+  { id: 19, name: 'Harish',           email: 'harish@nandifinance.in',           phone: '+91 98001 00019', role: 'Insurance Executive', branch: 'White Field',                 joined: '10 Dec 2021', status: 'Active', lastLogin: '04 Sep, 8:40 AM' },
+  { id: 20, name: 'Pradeep',          email: 'pradeep@nandifinance.in',          phone: '+91 98001 00020', role: 'Insurance Executive', branch: 'White Field',                 joined: '15 Dec 2021', status: 'Active', lastLogin: '04 Sep, 9:50 AM' },
+  { id: 21, name: 'Girish',           email: 'girish@nandifinance.in',           phone: '+91 98001 00021', role: 'Insurance Executive', branch: 'B G Road',                    joined: '01 Jan 2022', status: 'Active', lastLogin: '04 Sep, 10:05 AM' },
 ];
 
 const ROLE_COLORS = {
-  'Sales Officer':       { bg: '#f0f4ff', color: '#3b5bdb' },
-  'Team Leader – Sales': { bg: '#fff0f6', color: '#c2255c' },
+  'Insurance Executive': { bg: '#f0f4ff', color: '#3b5bdb' },
   'Finance Executive':   { bg: '#e8eef7', color: '#1a3a6b' },
-  'Finance Team Lead':   { bg: '#e6f4ed', color: '#1a7a4a' },
-  'Bank Executive':      { bg: '#fff8e1', color: '#b07d1a' },
-  'Branch Manager':      { bg: '#faeaea', color: '#b03a2e' },
+  'Team Leader':         { bg: '#e6f4ed', color: '#1a7a4a' },
 };
 
 function initials(name) { return name.split(' ').map(w => w[0]).join('').slice(0, 2); }

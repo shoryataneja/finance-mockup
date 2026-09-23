@@ -38,11 +38,11 @@ const STAGE_FIELDS = {
     { key: 'date', label: 'Order Date', type: 'date' },
     { key: 'documentsCollectedDate', label: 'Documents Collected Date', type: 'date' },
     { key: 'documentCollectionDelayRemarks', label: 'Collection Delay Remarks', type: 'text', placeholder: 'e.g. Awaiting salary slips' },
-    { key: 'loginDate', label: 'Login Date (N)', type: 'date' },
-    { key: 'nDayStatus', label: 'N Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
+    { key: 'loginDate', label: 'Login Date (Nth)', type: 'date' },
+    { key: 'nDayStatus', label: 'Nth Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
   ],
   3: [
-    { key: 'nPlus1DayStatus', label: 'N+1 Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
+    { key: 'nPlus1DayStatus', label: '(N+1)th Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
   ],
   4: [
     { key: 'approvalDate', label: 'Approval Date', type: 'date' },
@@ -59,9 +59,9 @@ const UPDATES_KEY = 'enq_updates';
 
 // Fields editable any time from the Loan Processing Timeline card.
 const PROCESS_EDIT_FIELDS = [
-  { key: 'loginDate', label: 'Login Date (N)', type: 'date' },
-  { key: 'nDayStatus', label: 'N Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
-  { key: 'nPlus1DayStatus', label: 'N+1 Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
+  { key: 'loginDate', label: 'Login Date (Nth)', type: 'date' },
+  { key: 'nDayStatus', label: 'Nth Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
+  { key: 'nPlus1DayStatus', label: '(N+1)th Day Status', type: 'status', suggestions: N_DAY_SUGGESTIONS },
 ];
 
 function loadUpdates() {
@@ -159,12 +159,82 @@ export default function EnquiryDetail() {
     return { ...original, ...saved, documents: [...original.documents], history: [...original.history] };
   });
   const [activeTab, setActiveTab] = useState('overview');
-  const [remarkModal, setRemarkModal] = useState(null); // { stageIdx }
+  const [remarkModal, setRemarkModal] = useState(null);
   const [remark, setRemark] = useState('');
   const [stageFields, setStageFields] = useState({});
   const [docModal, setDocModal] = useState(false);
   const [newDoc, setNewDoc] = useState({ category: 'KYC', name: '' });
   const [processModal, setProcessModal] = useState(false);
+  const [editModal, setEditModal] = useState(null);
+  const [editValues, setEditValues] = useState({});
+
+  const EDIT_SECTIONS = {
+    finance_bank: {
+      title: '🏢 Finance / Bank Details',
+      fields: [
+        { key: 'bank', label: 'Finance Company' },
+        { key: 'bankBranch', label: 'Bank Branch' },
+        { key: 'bankExecutive', label: 'Bank Executive' },
+        { key: 'branchManager', label: 'Branch Manager' },
+        { key: 'branchManagerPhone', label: 'Branch Manager Number' },
+        { key: 'branchManagerEmail', label: 'Branch Mail ID' },
+      ],
+    },
+    loan: {
+      title: '🏦 Finance Details',
+      fields: [
+        { key: 'loanAmount', label: 'Loan Amount (₹)', type: 'number' },
+        { key: 'downPayment', label: 'Down Payment (₹)', type: 'number' },
+        { key: 'netDisbursalAmount', label: 'Net Disbursal Amount (₹)', type: 'number' },
+        { key: 'emi', label: 'EMI / Month (₹)', type: 'number' },
+        { key: 'roi', label: 'Bank Rate (ROI)' },
+        { key: 'customerRate', label: 'Customer Rate' },
+        { key: 'ploughBack', label: 'Plough Back (₹)', type: 'number' },
+        { key: 'tenure', label: 'Tenure (months)', type: 'number' },
+      ],
+    },
+    vehicle: {
+      title: '🚗 Vehicle Details',
+      fields: [
+        { key: 'make', label: 'Make' },
+        { key: 'model', label: 'Model' },
+        { key: 'suffix', label: 'Suffix' },
+        { key: 'variant', label: 'Variant' },
+        { key: 'vehiclePrice', label: 'Vehicle Price (₹)', type: 'number' },
+        { key: 'dealer', label: 'Dealer' },
+        { key: 'branch', label: 'Dealership Branch' },
+        { key: 'invoiceNumber', label: 'Invoice Number' },
+        { key: 'rcNumber', label: 'RC Number' },
+        { key: 'insuranceCompany', label: 'Insurance Company' },
+        { key: 'policyNumber', label: 'Policy Number' },
+      ],
+    },
+    team: {
+      title: '👥 Sales & Finance Team',
+      fields: [
+        { key: 'salesOfficer', label: 'Sales Officer' },
+        { key: 'teamLeader', label: 'Team Leader' },
+        { key: 'executive', label: 'Finance Executive (FE)' },
+        { key: 'teamLead', label: 'Finance Team Lead' },
+      ],
+    },
+  };
+
+  const openEditModal = (section) => {
+    const sec = EDIT_SECTIONS[section];
+    const vals = sec.fields.reduce((acc, f) => { acc[f.key] = enq[f.key] ?? ''; return acc; }, {});
+    setEditValues(vals);
+    setEditModal(section);
+  };
+
+  const saveEdit = () => {
+    const updates = loadUpdates();
+    updates[enq.id] = { ...(updates[enq.id] || {}), ...editValues };
+    saveUpdates(updates);
+    setEnq(e => ({ ...e, ...editValues }));
+    setEditModal(null);
+    setEditValues({});
+  };
 
   if (!enq) return (
     <div className="detail-not-found">
@@ -384,7 +454,9 @@ export default function EnquiryDetail() {
 
             {/* Vehicle Details */}
             <div className="detail-card">
-              <div className="card-title">🚗 Vehicle Details</div>
+              <div className="card-title card-title-row">🚗 Vehicle Details
+                <button className="edit-btn" onClick={() => openEditModal('vehicle')}>✏️ Edit</button>
+              </div>
               <InfoRow label="Make" value={enq.make} />
               <InfoRow label="Model" value={enq.model} />
               <InfoRow label="Suffix" value={enq.suffix} />
@@ -414,7 +486,9 @@ export default function EnquiryDetail() {
 
             {/* Finance / Bank Details */}
             <div className="detail-card">
-              <div className="card-title">🏢 Finance / Bank Details</div>
+              <div className="card-title card-title-row">🏢 Finance / Bank Details
+                <button className="edit-btn" onClick={() => openEditModal('finance_bank')}>✏️ Edit</button>
+              </div>
               <InfoRow label="Finance Company" value={enq.bank} />
               <InfoRow label="Bank Branch" value={enq.bankBranch} />
               <InfoRow label="Bank Executive" value={enq.bankExecutive} />
@@ -425,7 +499,9 @@ export default function EnquiryDetail() {
 
             {/* Sales & Finance Team */}
             <div className="detail-card">
-              <div className="card-title">👥 Sales & Finance Team</div>
+              <div className="card-title card-title-row">👥 Sales & Finance Team
+                <button className="edit-btn" onClick={() => openEditModal('team')}>✏️ Edit</button>
+              </div>
               <div className="co-sub-heading">Sales Team</div>
               <InfoRow label="Sales Officer" value={enq.salesOfficer} />
               <InfoRow label="Team Leader" value={enq.teamLeader} />
@@ -442,9 +518,9 @@ export default function EnquiryDetail() {
               <div className="processing-grid">
                 <div className="processing-block">
                   <div className="proc-sub-heading">Login & Processing</div>
-                  <InfoRow label="Login Date (N)" value={enq.loginDate} />
-                  <InfoRow label="N Day Status" value={enq.nDayStatus} />
-                  <InfoRow label="N+1 Day Status" value={enq.nPlus1DayStatus} />
+                  <InfoRow label="Login Date (Nth)" value={enq.loginDate} />
+                  <InfoRow label="Nth Day Status" value={enq.nDayStatus} />
+                  <InfoRow label="(N+1)th Day Status" value={enq.nPlus1DayStatus} />
                 </div>
                 <div className="processing-block">
                   <div className="proc-sub-heading">Approval</div>
@@ -492,7 +568,9 @@ export default function EnquiryDetail() {
 
             {/* Finance Details */}
             <div className="detail-card finance-card">
-              <div className="card-title">🏦 Finance Details</div>
+              <div className="card-title card-title-row">🏦 Finance Details
+                <button className="edit-btn" onClick={() => openEditModal('loan')}>✏️ Edit</button>
+              </div>
               <div className="finance-highlight-row">
                 <div className="finance-highlight">
                   <div className="fh-label">Loan Amount</div>
@@ -717,6 +795,34 @@ export default function EnquiryDetail() {
             <div className="modal-actions">
               <button className="modal-cancel" onClick={() => setDocModal(false)}>Cancel</button>
               <button className="modal-confirm" onClick={addDocument}>Upload</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Card Modal */}
+      {editModal && (
+        <div className="modal-overlay" onClick={() => setEditModal(null)}>
+          <div className="modal-box modal-box-wide" onClick={e => e.stopPropagation()}>
+            <div className="modal-title">Edit {EDIT_SECTIONS[editModal].title}</div>
+            <div className="modal-stage-fields">
+              <div className="modal-fields-grid">
+                {EDIT_SECTIONS[editModal].fields.map(f => (
+                  <div className="modal-field" key={f.key}>
+                    <label>{f.label}</label>
+                    <input
+                      type={f.type || 'text'}
+                      value={editValues[f.key] ?? ''}
+                      onChange={e => setEditValues(v => ({ ...v, [f.key]: f.type === 'number' ? Number(e.target.value) : e.target.value }))}
+                      placeholder={f.label}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="modal-cancel" onClick={() => setEditModal(null)}>Cancel</button>
+              <button className="modal-confirm" onClick={saveEdit}>Save Changes</button>
             </div>
           </div>
         </div>

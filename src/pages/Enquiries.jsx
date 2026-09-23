@@ -31,7 +31,7 @@ const STATUS_CLASS = {
 
 const BANKS = [...new Set(ENQUIRIES.map(e => e.bank))].sort();
 const STATUSES = ['In-Progress', 'Sanctioned', 'Disbursed', 'Rejected'];
-const BANK_STAGES = ['Sent to Bank', 'Under Bank Consideration', 'Verification / FI', 'Approved', 'Agreement Completed', 'Disbursement'];
+const BANK_STAGES = ['Inquiry Submitted', 'Sent to Bank', 'Under Bank Consideration', 'Verification / FI', 'Approved', 'Agreement Completed', 'Disbursement'];
 const PROFILES = ['Salaried', 'Business'];
 const RESIDENCES = ['Own', 'Rented'];
 const SORT_OPTIONS = [
@@ -122,7 +122,7 @@ export default function EnquiriesPage() {
     if (filters.loanMax)  list = list.filter(e => e.loanAmount <= Number(filters.loanMax));
     if (filters.cibilMin) list = list.filter(e => e.cibil >= Number(filters.cibilMin));
     if (filters.cibilMax) list = list.filter(e => e.cibil <= Number(filters.cibilMax));
-    if (filters.bankStages.length) list = list.filter(e => e.status === 'In-Progress' && filters.bankStages.includes(e.bankStage));
+    if (filters.bankStages.length) list = list.filter(e => filters.bankStages.includes(e.bankStage));
     if (filters.tagColors.length) list = list.filter(e => tags[e.id] && filters.tagColors.includes(tags[e.id].color));
     list.sort((a, b) => {
       switch (filters.sort) {
@@ -192,20 +192,20 @@ export default function EnquiriesPage() {
           />
 
           <DropSelect
-            label="N Day"
+            label="Nth Day"
             options={ndOptions}
             selected={filters.nDayStatuses}
             onToggle={v => toggleArr('nDayStatuses', v)}
-            display={multiLabel(filters.nDayStatuses, 'All N Day')}
+            display={multiLabel(filters.nDayStatuses, 'All Nth Day')}
             active={filters.nDayStatuses.length > 0}
           />
 
           <DropSelect
-            label="N+1 Day"
+            label="(N+1)th Day"
             options={n1Options}
             selected={filters.nPlus1Statuses}
             onToggle={v => toggleArr('nPlus1Statuses', v)}
-            display={multiLabel(filters.nPlus1Statuses, 'All N+1')}
+            display={multiLabel(filters.nPlus1Statuses, 'All (N+1)th')}
             active={filters.nPlus1Statuses.length > 0}
           />
 

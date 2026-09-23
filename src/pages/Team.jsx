@@ -2,17 +2,30 @@ import { useState } from 'react';
 import './Team.css';
 
 const TEAM = [
-  { id: 1, name: 'Priya Sharma',  role: 'Finance Executive', lead: 'Karan Singh',  branch: 'Koramangala', joined: 'Jan 2023', total: 18, sanctioned: 12, rejected: 3, pending: 3 },
-  { id: 2, name: 'Rahul Mehta',   role: 'Finance Executive', lead: 'Karan Singh',  branch: 'KP Road',     joined: 'Mar 2023', total: 15, sanctioned: 9,  rejected: 4, pending: 2 },
-  { id: 3, name: 'Sneha Patil',   role: 'Finance Executive', lead: 'Vikram Joshi', branch: 'KR Road',     joined: 'Jun 2022', total: 22, sanctioned: 16, rejected: 4, pending: 2 },
-  { id: 4, name: 'Amit Verma',    role: 'Finance Executive', lead: 'Vikram Joshi', branch: 'Bommanhalli', joined: 'Sep 2022', total: 11, sanctioned: 6,  rejected: 3, pending: 2 },
-  { id: 5, name: 'Deepika Nair',  role: 'Finance Executive', lead: 'Karan Singh',  branch: 'Koramangala', joined: 'Feb 2024', total: 9,  sanctioned: 5,  rejected: 2, pending: 2 },
-  { id: 6, name: 'Karan Singh',   role: 'Finance Team Lead', lead: 'Karan Singh',  branch: 'KP Road',     joined: 'Aug 2021', total: 27, sanctioned: 20, rejected: 5, pending: 2 },
-  { id: 7, name: 'Meera Iyer',    role: 'Finance Executive', lead: 'Vikram Joshi', branch: 'KR Road',     joined: 'Nov 2023', total: 8,  sanctioned: 4,  rejected: 2, pending: 2 },
-  { id: 8, name: 'Vikram Joshi',  role: 'Finance Team Lead', lead: 'Vikram Joshi', branch: 'Bommanhalli', joined: 'May 2021', total: 31, sanctioned: 23, rejected: 5, pending: 3 },
+  { id: 1,  name: 'Shylaja',         role: 'Team Leader',         lead: 'Shylaja',      branch: 'Hosur Road',                 joined: 'Jan 2020', total: 22, sanctioned: 15, rejected: 4, pending: 3 },
+  { id: 2,  name: 'Sandeep',         role: 'Insurance Executive', lead: 'Shylaja',      branch: 'Hosur Road',                 joined: 'Jan 2021', total: 18, sanctioned: 12, rejected: 4, pending: 2 },
+  { id: 3,  name: 'Vijay',           role: 'Insurance Executive', lead: 'Shylaja',      branch: 'Hosur Road',                 joined: 'Feb 2021', total: 15, sanctioned: 10, rejected: 3, pending: 2 },
+  { id: 4,  name: 'Bhaskar',         role: 'Insurance Executive', lead: 'Shylaja',      branch: 'Hosur Road',                 joined: 'Mar 2021', total: 14, sanctioned: 9,  rejected: 3, pending: 2 },
+  { id: 5,  name: 'Hirelinga',       role: 'Insurance Executive', lead: 'Shylaja',      branch: 'Hosur Road',                 joined: 'Apr 2021', total: 12, sanctioned: 8,  rejected: 2, pending: 2 },
+  { id: 6,  name: 'Hemalatha',       role: 'Insurance Executive', lead: 'Shylaja',      branch: 'Hosur Road',                 joined: 'May 2021', total: 11, sanctioned: 7,  rejected: 2, pending: 2 },
+  { id: 7,  name: 'Sunil',           role: 'Insurance Executive', lead: 'Sunil',        branch: 'K P Road',                   joined: 'Jun 2021', total: 20, sanctioned: 14, rejected: 4, pending: 2 },
+  { id: 8,  name: 'Shailesh',        role: 'Insurance Executive', lead: 'Sunil',        branch: 'K P Road',                   joined: 'Jun 2021', total: 16, sanctioned: 11, rejected: 3, pending: 2 },
+  { id: 9,  name: 'Dilip',           role: 'Insurance Executive', lead: 'Sunil',        branch: 'K P Road',                   joined: 'Jul 2021', total: 14, sanctioned: 9,  rejected: 3, pending: 2 },
+  { id: 10, name: 'Srivasta',        role: 'Insurance Executive', lead: 'Sunil',        branch: 'K P Road',                   joined: 'Aug 2021', total: 13, sanctioned: 8,  rejected: 3, pending: 2 },
+  { id: 11, name: 'Anu',             role: 'Insurance Executive', lead: 'Sunil',        branch: 'K P Road',                   joined: 'Aug 2021', total: 11, sanctioned: 7,  rejected: 2, pending: 2 },
+  { id: 12, name: 'Mahesh',          role: 'Finance Executive',   lead: 'Mahesh',       branch: 'Queens Road',                joined: 'Sep 2021', total: 19, sanctioned: 13, rejected: 4, pending: 2 },
+  { id: 13, name: 'Shivu',           role: 'Finance Executive',   lead: 'Mahesh',       branch: 'Queens Road',                joined: 'Sep 2021', total: 15, sanctioned: 10, rejected: 3, pending: 2 },
+  { id: 14, name: 'Kavitha',         role: 'Finance Executive',   lead: 'Mahesh',       branch: 'Queens Road',                joined: 'Oct 2021', total: 13, sanctioned: 9,  rejected: 2, pending: 2 },
+  { id: 15, name: 'Gajalakshmi',     role: 'Insurance Executive', lead: 'Gajalakshmi',  branch: 'Banaswadi',                  joined: 'Nov 2021', total: 17, sanctioned: 11, rejected: 4, pending: 2 },
+  { id: 16, name: 'Nagesh',          role: 'Insurance Executive', lead: 'Gajalakshmi',  branch: 'Banaswadi',                  joined: 'Nov 2021', total: 14, sanctioned: 9,  rejected: 3, pending: 2 },
+  { id: 17, name: 'Lakshminarayana', role: 'Insurance Executive', lead: 'Gajalakshmi',  branch: 'Banaswadi',                  joined: 'Nov 2021', total: 12, sanctioned: 8,  rejected: 2, pending: 2 },
+  { id: 18, name: 'Pavithra',        role: 'Insurance Executive', lead: 'Gajalakshmi',  branch: 'Banaswadi',                  joined: 'Dec 2021', total: 10, sanctioned: 6,  rejected: 2, pending: 2 },
+  { id: 19, name: 'Harish',          role: 'Insurance Executive', lead: 'Harish',       branch: 'White Field',                joined: 'Dec 2021', total: 16, sanctioned: 11, rejected: 3, pending: 2 },
+  { id: 20, name: 'Pradeep',         role: 'Insurance Executive', lead: 'Harish',       branch: 'White Field',                joined: 'Dec 2021', total: 13, sanctioned: 8,  rejected: 3, pending: 2 },
+  { id: 21, name: 'Girish',          role: 'Insurance Executive', lead: 'Girish',       branch: 'B G Road',                   joined: 'Jan 2022', total: 9,  sanctioned: 6,  rejected: 2, pending: 1 },
 ];
 
-const LEADS = [...new Set(TEAM.filter(m => m.role === 'Finance Team Lead').map(m => m.name))];
+const LEADS = [...new Set(TEAM.map(m => m.lead))];
 
 function initials(name) { return name.split(' ').map(w => w[0]).join('').slice(0, 2); }
 function pct(val, total) { return total ? Math.round((val / total) * 100) : 0; }
@@ -44,7 +57,7 @@ export default function TeamPage() {
           <div className="team-page-title">Team Breakdown</div>
           <div className="team-page-sub">
             {selectedLead === 'All'
-              ? `Performance analytics for Ayush Tyagi's team · ${TEAM.length} members`
+              ? `Performance analytics for all teams · ${TEAM.length} members`
               : `Showing ${selectedLead}'s team · ${visibleTeam.length} members`}
           </div>
         </div>
